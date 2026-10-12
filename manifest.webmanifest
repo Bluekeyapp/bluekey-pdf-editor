@@ -1,0 +1,1 @@
+{"name": "BlueKey PDF Editor", "short_name": "BlueKey PDF Editor", "start_url": "./", "display": "standalone", "background_color": "#f7f8fa", "theme_color": "#155d55", "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}], "lang": "fr", "scope": "./"}
