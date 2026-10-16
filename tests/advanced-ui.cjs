@@ -115,9 +115,17 @@ const { chromium } = require("playwright");
     await page.screenshot({ path: "tests/content-mobile.png", fullPage: true });
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.click("#back");
+    // The click starts asynchronous draft saving and resource cleanup. Wait for
+    // the library before importing, otherwise home() can hide the new editor.
+    await page.locator("#home").waitFor({ state: "visible" });
+    await page.waitForFunction(() => pdfApp.getState() === null);
     await page
       .locator("#file-input")
       .setInputFiles(path.resolve("tests/content-fixture.pdf"));
+    await page.waitForFunction(
+      () => pdfApp.getState()?.name === "content-fixture.pdf",
+    );
+    await page.locator("#editor").waitFor({ state: "visible" });
     await page.locator("#busy").waitFor({ state: "hidden" });
     await page.click('[data-tool="content"]');
     await page
