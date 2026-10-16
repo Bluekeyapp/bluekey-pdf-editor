@@ -65,6 +65,7 @@ const { PDFDocument } = require("pdf-lib");
     );
     await page.click("#redo");
     await page.screenshot({ path: "tests/editor-desktop.png", fullPage: true });
+    await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.waitForFunction(
       () =>
@@ -142,6 +143,7 @@ const { PDFDocument } = require("pdf-lib");
       ),
       "mobile page should not overflow horizontally",
     );
+    await page.locator(".tool-overflow > summary").click();
     await page.locator('[data-tool="pages"]').click();
     await page.click("#p-extract");
     const dl2 = page.waitForEvent("download");

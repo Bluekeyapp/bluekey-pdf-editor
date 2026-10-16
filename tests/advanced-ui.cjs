@@ -70,6 +70,7 @@ const { chromium } = require("playwright");
       await page.locator("#content-text").inputValue(),
       "María approved",
     );
+    await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.waitForTimeout(500);
     await page.reload();
@@ -154,7 +155,7 @@ const { chromium } = require("playwright");
     assert.equal(await page.locator("#image-dx").inputValue(), "0");
     await page.click("#remove-content-image");
     await page.locator("#busy").waitFor({ state: "hidden" });
-    await page.waitForSelector("#object-picker");
+    await page.waitForSelector("#object-picker", { state: "attached" });
     assert.equal(
       await page.getByRole("button", { name: /^Edit PDF · Image:/ }).count(),
       1,

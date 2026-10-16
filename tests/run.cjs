@@ -20,6 +20,7 @@ const browser = [
   "offline-ocr",
   "reliability-ui",
   "text-experience-ui",
+  "workspace-ui",
 ];
 function run(name) {
   return new Promise((resolve, reject) => {

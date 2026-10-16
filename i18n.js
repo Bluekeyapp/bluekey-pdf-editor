@@ -451,6 +451,30 @@ Whole-page fallback loses this page’s vector, link and accessibility structure
 Replacement text was not found in the selected area. Review the preview and font.	Le texte de remplacement est introuvable dans la zone sélectionnée. Vérifiez l’aperçu et la police.
 Original text is still extractable in the replaced area. Expand the selection or choose the explicit raster fallback.	Le texte original peut encore être extrait de la zone remplacée. Agrandissez la sélection ou choisissez explicitement la conversion en image.
 This area intersects an interactive form field. Use Fill or export a flattened copy before reconstruction.	Cette zone chevauche un champ interactif. Utilisez Remplir ou exportez une copie aplatie avant de reconstruire.
+Select an object to edit it. Green text is directly editable. Amber text needs review and reconstruction. Image outlines appear on hover or selection.	Sélectionnez un objet pour le modifier. Les textes verts sont directement modifiables. Les textes orange nécessitent une vérification et une reconstruction. Les cadres des images apparaissent au survol ou à la sélection.
+The scan image could not be prepared.	Impossible de préparer l’image numérisée.
+Close	Fermer
+Save options	Enregistrer
+Save and backup	Enregistrement et sauvegarde
+Typing is saved automatically in this browser.	Votre saisie est enregistrée automatiquement dans ce navigateur.
+Save now on this device.	Enregistrer maintenant sur cet appareil.
+Download a project backup to continue editing on another device.	Téléchargez une sauvegarde du projet pour continuer sur un autre appareil.
+More tools	Autres outils
+Document tools	Outils du document
+Show properties	Afficher les propriétés
+Hide properties	Masquer les propriétés
+More formatting	Plus d’options
+Page tools and recognition	Outils de la page et reconnaissance
+Font, position and overflow	Police, position et débordement
+Green text is directly editable. Amber text needs review and reconstruction. Image outlines appear on hover or selection.	Les textes verts sont directement modifiables. Les textes orange nécessitent une vérification et une reconstruction. Les cadres des images apparaissent au survol ou à la sélection.
+Review the text, compare the preview, then create a separate editable copy.	Vérifiez le texte, comparez l’aperçu, puis créez une copie modifiable séparée.
+Reconstruction steps	Étapes de reconstruction
+1 · Review text	1 · Vérifier le texte
+2 · Compare preview	2 · Comparer l’aperçu
+Page preview	Aperçu de la page
+Review recognized text	Vérifier le texte reconnu
+Recognition and replacement settings	Réglages de reconnaissance et de remplacement
+Analysis complete	Analyse terminée
 `;
 export const messages = Object.fromEntries(
   catalogue
@@ -468,7 +492,7 @@ export const locale = () => (language === "fr" ? "fr-FR" : "en-GB");
 export function t(text) {
   if (typeof text !== "string" || language === "en") return text;
   const trimmed = text.trim(),
-    direct = messages[trimmed];
+    direct = messages[trimmed] || messages[trimmed.replace(/\s+/g, " ")];
   if (direct) return text.replace(trimmed, direct);
   for (const [regex, replace] of patterns) {
     if (regex.test(trimmed))
@@ -483,6 +507,11 @@ export function t(text) {
   return text;
 }
 const patterns = [
+  [
+    /^(\d+) editable images · (\d+) changed objects$/,
+    (_, images, changed) =>
+      `${images} images modifiables · ${changed} objets modifiés`,
+  ],
   [
     /^(\d+) \/ (\d+) pages analyzed · (text|scan|mixed|searchable-scan|empty|unsupported|analyzing)( · Recognizing text…)?( · Paused)?$/,
     (_, count, total, kind, processing, paused) =>

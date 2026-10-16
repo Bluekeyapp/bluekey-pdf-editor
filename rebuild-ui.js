@@ -29,8 +29,43 @@ export async function openRebuild(
     fontData,
     originalContent;
   api.modal(
-    `<h2>Make this area editable</h2><p>Replace the selected areas with editable text. Surrounding page objects, links and document structure are retained when the source text can be safely removed. Fonts and backgrounds inside the selected areas may change. Your original draft stays separate.</p><label><input id="raster-fallback" type="checkbox"> Allow whole-page raster fallback if regional replacement is unsafe</label><p>Whole-page fallback loses this page’s vector, link and accessibility structure and can remove interactive forms and document-level features. Your original draft remains available. It is not secure redaction.</p><p id="ocr-progress" aria-live="polite">Preparing the current document…</p><canvas tabindex="-1" id="rebuild-preview" aria-label="Selected area and reconstruction preview"></canvas><div class="compare-tabs"><button id="rebuild-original" class="active">Original</button><button id="rebuild-result" disabled>Reconstructed preview</button></div><div class="edit-grid"><label>Recognition language<select id="ocr-language"><option value="eng">English</option><option value="spa">Spanish</option><option value="eng+spa">English + Spanish</option></select></label><label>Background<input type="color" id="rebuild-background" value="#ffffff"></label><label>Text color<input type="color" id="rebuild-ink" value="#000000"></label></div><label><input id="scan-clean" type="checkbox" checked> Improve scan contrast</label><label><input id="scan-deskew" type="checkbox" checked> Straighten slightly tilted text for recognition</label><label>Optional replacement font (TTF / OTF)<input id="rebuild-font" type="file" accept=".ttf,.otf"></label><p>Bundled font supports Latin, Greek and Cyrillic. Complex scripts need additional layout support.</p><div class="edit-actions"><button class="secondary" id="run-ocr" disabled>Recognize selected area</button><button class="secondary" id="manual-area" disabled>Type text manually</button></div><div id="ocr-lines"></div><div class="dialog-actions"><button class="secondary" id="cancel-ocr">Cancel</button><button class="secondary" id="preview-rebuild" disabled>Preview editable copy</button><button class="primary" id="build-ocr" disabled>Create editable copy</button></div>`,
+    `<div id="rebuild-workspace" data-step="review">
+      <header class="rebuild-header"><h2>Make this area editable</h2><p>Review the text, compare the preview, then create a separate editable copy.</p>
+        <nav class="rebuild-steps" aria-label="Reconstruction steps"><button id="ocr-review-step" aria-current="step">1 · Review text</button><button id="ocr-compare-step" disabled>2 · Compare preview</button></nav>
+        <p id="ocr-progress" role="status" aria-live="polite">Preparing the current document…</p>
+      </header>
+      <div class="rebuild-body"><div class="rebuild-layout">
+        <section class="rebuild-visual" aria-label="Page preview"><canvas tabindex="-1" id="rebuild-preview" aria-label="Selected area and reconstruction preview"></canvas><div class="compare-tabs"><button id="rebuild-original" class="active">Original</button><button id="rebuild-result" disabled>Reconstructed preview</button></div></section>
+        <section class="rebuild-review" aria-label="Review recognized text"><h3>Review recognized text</h3><label>Recognition language<select id="ocr-language"><option value="eng">English</option><option value="spa">Spanish</option><option value="eng+spa">English + Spanish</option></select></label>
+          <div class="edit-actions"><button class="secondary" id="run-ocr" disabled>Recognize selected area</button><button class="secondary" id="manual-area" disabled>Type text manually</button></div>
+          <div id="ocr-lines"></div>
+          <details class="rebuild-settings"><summary>Recognition and replacement settings</summary>
+            <div class="edit-grid"><label>Background<input type="color" id="rebuild-background" value="#ffffff"></label><label>Text color<input type="color" id="rebuild-ink" value="#000000"></label></div>
+            <label><input id="scan-clean" type="checkbox" checked> Improve scan contrast</label><label><input id="scan-deskew" type="checkbox" checked> Straighten slightly tilted text for recognition</label>
+            <label>Optional replacement font (TTF / OTF)<input id="rebuild-font" type="file" accept=".ttf,.otf"></label><p>Bundled font supports Latin, Greek and Cyrillic. Complex scripts need additional layout support.</p>
+            <p>Replace the selected areas with editable text. Surrounding page objects, links and document structure are retained when the source text can be safely removed. Fonts and backgrounds inside the selected areas may change. Your original draft stays separate.</p>
+            <label><input id="raster-fallback" type="checkbox"> Allow whole-page raster fallback if regional replacement is unsafe</label><p>Whole-page fallback loses this page’s vector, link and accessibility structure and can remove interactive forms and document-level features. Your original draft remains available. It is not secure redaction.</p>
+          </details>
+        </section>
+      </div></div>
+      <footer class="dialog-actions"><button class="secondary" id="cancel-ocr">Cancel</button><button class="secondary" id="preview-rebuild" disabled>Preview editable copy</button><button class="primary" id="build-ocr" disabled>Create editable copy</button></footer>
+    </div>`,
   );
+  const setStep = (step) => {
+    const changed = $("#rebuild-workspace").dataset.step !== step;
+    $("#rebuild-workspace").dataset.step = step;
+    $("#ocr-review-step").setAttribute(
+      "aria-current",
+      step === "review" ? "step" : "false",
+    );
+    $("#ocr-compare-step").setAttribute(
+      "aria-current",
+      step === "compare" ? "step" : "false",
+    );
+    if (changed) $(".rebuild-body").scrollTop = 0;
+  };
+  $("#ocr-review-step").onclick = () => setStep("review");
+  $("#ocr-compare-step").onclick = () => setStep("compare");
   const languageSelect = $("#ocr-language");
   languageSelect.insertAdjacentHTML(
     "afterbegin",
@@ -43,6 +78,8 @@ export async function openRebuild(
     prepared = null;
     $("#build-ocr").disabled = true;
     $("#rebuild-result").disabled = true;
+    $("#ocr-compare-step").disabled = true;
+    setStep("review");
   };
   $("#raster-fallback").onchange = () => {
     invalidate();
@@ -323,13 +360,15 @@ export async function openRebuild(
       prepared = output;
       $("#build-ocr").disabled = false;
       $("#rebuild-result").disabled = false;
+      $("#ocr-compare-step").disabled = false;
+      setStep("compare");
       report(
         reconstructionMode === "region"
           ? "Exported text checked. Regional replacement preserves surrounding page objects. Compare Original before creating the editable copy."
           : "Exported text checked. Whole-page raster fallback was used: unselected content on this page is now pixels. Compare Original before creating the editable copy.",
       );
       $("#rebuild-preview").focus({ preventScroll: true });
-      $("#modal").scrollTop = 0;
+      $(".rebuild-body").scrollTop = 0;
     } catch (e) {
       report("Cannot build this text: " + e.message);
     } finally {

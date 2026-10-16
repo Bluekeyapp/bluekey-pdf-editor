@@ -123,6 +123,29 @@ if (!Uint8Array.prototype.toHex)
     ).length,
     2,
   );
+  const matches = findPageMatches(
+    { items: [{ str: "Sentence sentence." }] },
+    "sentence",
+  );
+  assert.deepEqual(
+    matches.map((m) => m.ranges),
+    [[{ index: 0, start: 0, end: 8 }], [{ index: 0, start: 9, end: 17 }]],
+  );
+  assert.equal(matches[1].hit, "sentence");
+  assert.deepEqual(
+    findPageMatches({ items: [{ str: "İ hello" }] }, "hello")[0].ranges,
+    [{ index: 0, start: 2, end: 7 }],
+  );
+  assert.deepEqual(
+    findPageMatches(
+      { items: [{ str: "Client" }, { str: "approval" }] },
+      "client approval",
+    )[0].ranges,
+    [
+      { index: 0, start: 0, end: 6 },
+      { index: 1, start: 0, end: 8 },
+    ],
+  );
   assert.equal(
     (await PDFLib.PDFDocument.load(bytes))
       .getForm()

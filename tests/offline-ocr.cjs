@@ -10,7 +10,9 @@ const { chromium } = require("playwright");
   });
   try {
     const context = await browser.newContext(),
-      page = await context.newPage();
+      page = await context.newPage(),
+      errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (m) => {
       if (m.type() === "error") console.error(m.text());
     });
@@ -47,6 +49,8 @@ const { chromium } = require("playwright");
       .locator("#file-input")
       .setInputFiles(path.resolve("tests/scan-fixture.pdf"));
     await page.locator("#busy").waitFor({ state: "hidden" });
+    if (!(await page.locator('[data-tool="ocr"]').isVisible()))
+      await page.locator(".tool-overflow > summary").click();
     await page.click('[data-tool="ocr"]');
     await page.selectOption("#ocr-language", "spa");
     await page.click("#run-ocr");
@@ -58,6 +62,8 @@ const { chromium } = require("playwright");
       (await page.locator("#ocr-lines").innerText()).includes("confidence"),
     );
     await page.click("#cancel-ocr");
+    if (!(await page.locator('[data-tool="ocr"]').isVisible()))
+      await page.locator(".tool-overflow > summary").click();
     await page.click('[data-tool="ocr"]');
     await page.click("#run-ocr");
     await page.click("#cancel-ocr");
@@ -65,6 +71,31 @@ const { chromium } = require("playwright");
     assert.equal(await page.locator("#modal").evaluate((d) => d.open), false);
     await page.click('[data-tool="content"]');
     await page.waitForSelector("#object-picker");
+    const preparationCancel = await page.evaluate(async () => {
+      const { recognizePage } = await import("./ocr.js"),
+        canvas = document.createElement("canvas"),
+        controller = new AbortController();
+      canvas.width = canvas.height = 50;
+      const encode = canvas.toBlob.bind(canvas);
+      canvas.toBlob = (callback) =>
+        encode((blob) => {
+          controller.abort();
+          callback(blob);
+        });
+      try {
+        await recognizePage(canvas, "eng", () => {}, controller.signal);
+        return "unexpected success";
+      } catch (error) {
+        return error.name;
+      }
+    });
+    assert.equal(
+      preparationCancel,
+      "AbortError",
+      "cancel during image preparation must not enqueue a terminated worker job",
+    );
+    await page.waitForTimeout(100);
+    assert.deepEqual(errors, []);
     console.log(
       "PASS: cached web app and Spanish OCR work offline; recognition can be canceled and editor remains usable.",
     );

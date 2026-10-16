@@ -16,9 +16,28 @@ export async function renderPageText(
     viewport,
   });
   await layer.render();
-  for (const match of matches) {
-    for (const index of match.items)
-      layer.textDivs[index]?.classList.add("search-match");
+  const ranges = new Map();
+  for (const match of matches)
+    for (const range of match.ranges || []) {
+      if (!ranges.has(range.index)) ranges.set(range.index, []);
+      ranges.get(range.index).push({ ...range, current: match.current });
+    }
+  for (const [index, highlights] of ranges) {
+    const div = layer.textDivs[index];
+    if (!div) continue;
+    const text = div.textContent,
+      nodes = [];
+    let offset = 0;
+    for (const range of highlights.sort((a, b) => a.start - b.start)) {
+      nodes.push(document.createTextNode(text.slice(offset, range.start)));
+      const mark = document.createElement("mark");
+      mark.className = "search-match" + (range.current ? " current" : "");
+      mark.textContent = text.slice(range.start, range.end);
+      nodes.push(mark);
+      offset = range.end;
+    }
+    nodes.push(document.createTextNode(text.slice(offset)));
+    div.replaceChildren(...nodes);
   }
   return layer;
 }
@@ -29,26 +48,53 @@ export function findPageMatches(content, query) {
   let text = "";
   items.forEach((item, index) => {
     const start = text.length;
-    text += item.str.toLocaleLowerCase();
+    text += item.str;
     spans.push({ start, end: text.length, index });
     text += " ";
   });
-  const needle = query.toLocaleLowerCase();
+  // Keep offsets in the original UTF-16 text even when case folding expands a
+  // character (for example capital dotted I), so highlights never shift.
+  let folded = "",
+    rawOffset = 0;
+  const starts = [],
+    ends = [];
+  for (const character of text) {
+    const lower = character.toLowerCase();
+    for (let i = 0; i < lower.length; i++) {
+      starts.push(rawOffset);
+      ends.push(rawOffset + character.length);
+    }
+    folded += lower;
+    rawOffset += character.length;
+  }
+  const needle = query.toLowerCase();
   const matches = [];
   if (!needle) return matches;
   for (
-    let at = text.indexOf(needle);
+    let at = folded.indexOf(needle);
     at !== -1;
-    at = text.indexOf(needle, at + needle.length)
+    at = folded.indexOf(needle, at + needle.length)
   ) {
+    const start = starts[at],
+      end = ends[at + needle.length - 1],
+      excerptStart = Math.max(0, start - 25),
+      excerptEnd = Math.min(text.length, end + 65);
+    const ranges = spans
+      .filter((span) => span.start < end && span.end > start)
+      .map((span) => ({
+        index: span.index,
+        start: Math.max(start, span.start) - span.start,
+        end: Math.min(end, span.end) - span.start,
+      }));
     matches.push({
-      items: spans
-        .filter((span) => span.start < at + needle.length && span.end > at)
-        .map((span) => span.index),
-      excerpt: items
-        .map((item) => item.str)
-        .join(" ")
-        .slice(Math.max(0, at - 25), at + needle.length + 65),
+      items: ranges.map((range) => range.index),
+      ranges,
+      excerpt: text.slice(excerptStart, excerptEnd),
+      before: (excerptStart ? "…" : "") + text.slice(excerptStart, start),
+      hit: text.slice(start, end),
+      after:
+        text.slice(end, excerptEnd).trimEnd() +
+        (excerptEnd < text.length ? "…" : ""),
     });
   }
   return matches;

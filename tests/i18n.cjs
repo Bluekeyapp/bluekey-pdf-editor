@@ -28,6 +28,19 @@ const fs = require("node:fs");
     t("Font could not load: The local font could not load."),
     "Impossible de charger la police : Impossible de charger la police locale.",
   );
+  assert.equal(
+    t(
+      "Saved drafts live in this browser.\n  Download a copy to keep it outside the app.",
+    ),
+    messages[
+      "Saved drafts live in this browser. Download a copy to keep it outside the app."
+    ],
+  );
+  assert.equal(t("Close"), "Fermer");
+  assert.equal(
+    t("3 editable images · 2 changed objects"),
+    "3 images modifiables · 2 objets modifiés",
+  );
   assert.equal(t(" - completed"), " - finalisé");
   globalThis.self = globalThis;
   await import("../vendor/pdf-lib.min.js");

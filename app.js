@@ -209,7 +209,7 @@ const tools = [
   ["pages", "layers", "Pages"],
   ["search", "search", "Search"],
 ];
-const defaults = { color: "#173c33", size: 16, text: "" };
+const defaults = { color: "#173c33", size: 16, stroke: 3, text: "" };
 function notify(message, error = false) {
   $("#toast").textContent = message;
   $("#toast").hidden = false;
@@ -588,25 +588,65 @@ async function library() {
   );
 }
 function buildToolbar() {
-  $("#toolbar").innerHTML = tools
-    .map(
-      ([id, ic, label]) =>
-        `<button class="tool ${tool === id ? "active" : ""}" data-tool="${id}" aria-pressed="${tool === id}">${icon(ic)}${label}</button>`,
-    )
-    .join("");
+  const primary = ["select", "content", "text", "fill", "sign"],
+    button = ([id, ic, label]) =>
+      `<button class="tool ${tool === id ? "active" : ""}" data-tool="${id}" title="${label}" aria-label="${label}" aria-pressed="${tool === id}">${icon(ic)}<span>${label}</span></button>`;
+  $("#toolbar").innerHTML =
+    tools
+      .filter(([id]) => primary.includes(id))
+      .map(button)
+      .join("") +
+    `<details class="tool-overflow" ${wideToolbar.matches ? "open" : ""}><summary title="More tools">${icon("ellipsis")}<span>More tools</span></summary><div class="tool-menu">${tools
+      .filter(([id]) => !primary.includes(id))
+      .map(button)
+      .join("")}</div></details>`;
   $$("[data-tool]").forEach((b) => (b.onclick = () => setTool(b.dataset.tool)));
   icons();
 }
+const wideToolbar = matchMedia("(min-width: 1360px)");
+wideToolbar.addEventListener("change", () => state && buildToolbar());
+document.addEventListener("click", (event) => {
+  for (const menu of $$(".save-menu[open], .tool-overflow[open]"))
+    if (
+      !menu.contains(event.target) &&
+      !(menu.classList.contains("tool-overflow") && wideToolbar.matches)
+    )
+      menu.open = false;
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || $("#modal").open) return;
+  const menu =
+    $(".save-menu[open]") ||
+    (!wideToolbar.matches && $(".tool-overflow[open]"));
+  if (menu) {
+    menu.open = false;
+    menu.querySelector("summary").focus();
+  } else if (
+    document.body.classList.contains("properties-open") &&
+    !event.target.closest("textarea,input,select")
+  ) {
+    document.body.classList.remove("properties-open");
+    $("#toggle-properties").focus();
+    mobilePanel();
+  }
+});
 function setTool(t) {
   contentUI.capture();
   const wasCompare = compareView;
   contentUI.clear();
   selected = null;
   tool = t;
+  if (matchMedia("(max-width: 760px)").matches)
+    document.body.classList.toggle(
+      "properties-open",
+      !["content", "select"].includes(t),
+    );
   if (t !== "search")
     textContainer
       .querySelectorAll(".search-match")
-      .forEach((span) => span.classList.remove("search-match"));
+      .forEach((span) =>
+        span.replaceWith(document.createTextNode(span.textContent)),
+      );
   buildToolbar();
   properties();
   drawMarks();
@@ -616,6 +656,11 @@ function setTool(t) {
   if (wasCompare) render();
 }
 function mobilePanel() {
+  const open = document.body.classList.contains("properties-open");
+  $("#toggle-properties").setAttribute("aria-expanded", String(open));
+  $("#toggle-properties").textContent = open
+    ? "Hide properties"
+    : "Show properties";
   requestAnimationFrame(() =>
     document.documentElement.style.setProperty(
       "--panel-height",
@@ -623,6 +668,10 @@ function mobilePanel() {
     ),
   );
 }
+$("#toggle-properties").onclick = () => {
+  document.body.classList.toggle("properties-open");
+  mobilePanel();
+};
 const contentUI = createContentEditor({
   page,
   source,
@@ -630,6 +679,14 @@ const contentUI = createContentEditor({
   tool: () => tool,
   notify,
   resize: mobilePanel,
+  showProperties: () => {
+    document.body.classList.add("properties-open");
+    mobilePanel();
+    $("#properties").scrollTop = 0;
+    $(
+      "#content-text, #review-recovered, #properties input, #properties select",
+    )?.focus({ preventScroll: true });
+  },
   render,
   compare: (v) => {
     compareView = v;
@@ -719,7 +776,7 @@ function properties() {
     (m && ["text", "note", "draw", "underline"].includes(m.type)) ||
     ["text", "note", "draw"].includes(tool)
   )
-    html += `<label for="size">${tool === "draw" || m?.type === "draw" ? "Stroke" : "Text size"}</label><input id="size" type="number" min="2" max="72" value="${m?.size || defaults.size}">`;
+    html += `<label for="size">${tool === "draw" || m?.type === "draw" ? "Stroke" : "Text size"}</label><input id="size" type="number" min="2" max="72" value="${m?.size || (tool === "draw" ? defaults.stroke : defaults.size)}">`;
   if (
     (m?.type !== "image" &&
       ["text", "note", "draw", "highlight", "underline"].includes(tool)) ||
@@ -759,7 +816,8 @@ function properties() {
           if (key === "text") validateAddedText(m, value);
           changed();
           drawMarks();
-        } else defaults[key] = value;
+        } else
+          defaults[tool === "draw" && key === "size" ? "stroke" : key] = value;
       };
     }
   };
@@ -829,10 +887,12 @@ function properties() {
   bind("#find-prev", () => showMatch(-1));
   bind("#find-next", () => showMatch(1));
   renderSearchResults();
-  if ($("#find-text"))
+  if ($("#find-text")) {
+    $("#find-text").oninput = (event) => (searchQuery = event.target.value);
     $("#find-text").onkeydown = (e) => {
       if (e.key === "Enter") findText();
     };
+  }
   mobilePanel();
   $("#marks-canvas").classList.toggle(
     "interact",
@@ -1167,7 +1227,7 @@ $("#marks-canvas").onpointerdown = (e) => {
       w: 1,
       h: 1,
       points: [[x, y]],
-      size: tool === "draw" ? Math.min(defaults.size, 6) : 1,
+      size: tool === "draw" ? defaults.stroke : 1,
       color:
         tool === "highlight" ? $("#color")?.value || "#f1c84a" : defaults.color,
     };
@@ -1467,7 +1527,12 @@ async function renderText(pg, scale, epoch) {
       pg,
       view,
       textContainer,
-      searchMatches.filter((match) => match.page === active),
+      searchMatches
+        .filter((match) => match.page === active)
+        .map((match) => ({
+          ...match,
+          current: match === searchMatches[searchIndex],
+        })),
     );
   } catch (e) {
     if (e.name !== "AbortException") throw e;
@@ -1480,7 +1545,7 @@ function renderSearchResults() {
   result.innerHTML = searchMatches
     .map(
       (match, index) =>
-        `<button class="search-result" data-match="${index}"><b>Page ${match.page + 1}</b><span class="search-excerpt">${esc(match.excerpt)}</span></button>`,
+        `<button class="search-result ${index === searchIndex ? "active" : ""}" data-match="${index}" aria-current="${index === searchIndex}"><b>Page ${match.page + 1}</b><span class="search-excerpt">${esc(match.before)}<mark>${esc(match.hit)}</mark>${esc(match.after)}</span></button>`,
     )
     .join("");
   $$("[data-match]").forEach(
@@ -1498,7 +1563,7 @@ async function showMatch(delta) {
   active = searchMatches[searchIndex].page;
   await render();
   textContainer
-    .querySelector(".search-match")
+    .querySelector(".search-match.current")
     ?.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 async function findText() {
@@ -1906,7 +1971,12 @@ backupButton.id = "backup-project";
 backupButton.className = "secondary";
 backupButton.textContent = "Backup project";
 backupButton.onclick = backupProject;
-$("#save-draft").after(backupButton);
+$("#save-draft-help").after(backupButton);
+backupButton.title =
+  "Download a project backup to continue editing on another device.";
+$("#save-draft").title = "Save now on this device.";
+for (const button of [backupButton, $("#save-draft")])
+  button.addEventListener("click", () => ($("#save-menu").open = false));
 const projectInput = document.createElement("input");
 projectInput.type = "file";
 projectInput.accept = ".bluekey.json,application/json";

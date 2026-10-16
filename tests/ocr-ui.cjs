@@ -58,6 +58,8 @@ const { chromium } = require("playwright");
       .locator("#file-input")
       .setInputFiles(path.resolve("tests/scan-fixture.pdf"));
     await page.locator("#busy").waitFor({ state: "hidden" });
+    if (!(await page.locator('[data-tool="ocr"]').isVisible()))
+      await page.locator(".tool-overflow > summary").click();
     await page.click('[data-tool="ocr"]');
     await page.click("#run-ocr");
     await page
@@ -80,7 +82,7 @@ const { chromium } = require("playwright");
     );
     await page.click("#build-ocr");
     await page.locator("#busy").waitFor({ state: "hidden" });
-    await page.waitForSelector("#object-picker");
+    await page.waitForSelector("#object-picker", { state: "attached" });
     const text = await page.evaluate(async () => {
       const pdfjs = await import("/vendor/pdf.min.mjs");
       const d = await pdfjs.getDocument({

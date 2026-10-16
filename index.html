@@ -139,8 +139,11 @@
         </div>
         <div id="library" class="library"></div>
         <div class="home-footer">
-          <i data-lucide="lock-keyhole"></i> Saved drafts live in this browser.
-          Download a copy to keep it outside the app.
+          <i data-lucide="lock-keyhole"></i
+          ><span
+            >Saved drafts live in this browser. Download a copy to keep it
+            outside the app.</span
+          >
         </div>
       </section>
     </main>
@@ -182,13 +185,33 @@
             <i data-lucide="redo-2"></i>
           </button>
         </div>
-        <button class="secondary save-draft" id="save-draft">
-          <i data-lucide="hard-drive-download"></i> Save draft</button
-        ><button class="primary" id="export">
+        <details class="save-menu" id="save-menu">
+          <summary title="Save and backup">Save options</summary>
+          <div class="save-options">
+            <p>Typing is saved automatically in this browser.</p>
+            <button class="secondary save-draft" id="save-draft">
+              <i data-lucide="hard-drive-download"></i> Save draft
+            </button>
+            <small id="save-draft-help">Save now on this device.</small>
+            <small class="backup-help"
+              >Download a project backup to continue editing on another
+              device.</small
+            >
+          </div>
+        </details>
+        <button class="primary" id="export">
           <i data-lucide="download"></i><span>Export PDF</span>
         </button>
       </header>
-      <div class="toolbar" id="toolbar"></div>
+      <div class="toolbar" id="toolbar" aria-label="Document tools"></div>
+      <button
+        id="toggle-properties"
+        class="properties-toggle"
+        aria-controls="properties"
+        aria-expanded="false"
+      >
+        Show properties
+      </button>
       <div class="editor-body">
         <aside class="pages-panel">
           <div class="panel-title">

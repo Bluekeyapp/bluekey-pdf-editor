@@ -37,6 +37,17 @@ import, undo/redo, worker-based regional preview, clipped-text replacement,
 independent PDF.js readback and a 390 px layout. Generated test inputs contain no
 client data. These cases do not establish universal PDF or language compatibility.
 
+## Workspace stage (0.5.1)
+
+`workspace-ui.cjs` checks selected controls before page-wide settings, exact
+search highlights (including multiple and cross-run matches in the Node suite),
+save/backup menus, toolbar and menu bounds at 1440/1100/390/320 px, a mobile
+properties drawer, OCR review/compare navigation, non-overlapping footer and
+correction fields, preview invalidation, and translated French controls. It
+previews an explicitly selected raster fallback on the native demo; regional
+preservation continues to be covered by the existing reconstruction suites.
+Physical mobile keyboards and screen-reader workflows still need device testing.
+
 ## Adding representative documents
 
 Before expanding compatibility claims, add anonymized, authorized examples of

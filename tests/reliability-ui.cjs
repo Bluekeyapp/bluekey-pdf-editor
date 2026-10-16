@@ -28,6 +28,7 @@ const path = require("node:path");
     const box = await page.locator("#marks-canvas").boundingBox();
     await page.mouse.click(box.x + box.width * 0.2, box.y + box.height * 0.75);
     await page.locator("#mark-text").fill("Ελληνικά — Привет");
+    await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.waitForFunction(
       () =>
@@ -85,6 +86,8 @@ const path = require("node:path");
     const recovered = await restored.evaluate(() => pdfApp.getState());
     assert.equal(recovered.sources[0].values.full_name, "María Portable");
     assert.equal(recovered.pages[0].marks[0].text, "Ελληνικά — unsaved");
+    if (!(await restored.locator('[data-tool="search"]').isVisible()))
+      await restored.locator(".tool-overflow > summary").click();
     await restored.click('[data-tool="search"]');
     await restored.fill("#find-text", "document");
     await restored.click("#find-go");

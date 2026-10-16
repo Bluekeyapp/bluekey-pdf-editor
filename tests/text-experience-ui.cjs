@@ -17,7 +17,10 @@ const { chromium } = require("playwright"),
     page = await context.newPage();
     const errors = [],
       external = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("pageerror", (error) => {
+      errors.push(error.message);
+      console.error(error.stack);
+    });
     context.on("request", (request) => {
       if (
         /^https?:/.test(request.url()) &&
@@ -94,7 +97,7 @@ const { chromium } = require("playwright"),
       buffer: Buffer.from(bytes),
     });
     await page.locator("#busy").waitFor({ state: "hidden" });
-    await page.waitForSelector("#object-picker");
+    await page.waitForSelector("#object-picker", { state: "attached" });
     await page.click("#toggle-analysis");
     await page.waitForFunction(() =>
       document
@@ -139,6 +142,7 @@ const { chromium } = require("playwright"),
       input.setSelectionRange(3, 12);
       input.dispatchEvent(new Event("select"));
     });
+    await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.waitForFunction(
       () =>
@@ -170,8 +174,10 @@ const { chromium } = require("playwright"),
       ).includes("matrix("),
     );
     const projectDownload = page.waitForEvent("download");
+    await page.locator("#save-menu > summary").click();
     await page.click("#backup-project");
     await (await projectDownload).saveAs("tests/typing.bluekey.json");
+    await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.waitForFunction(
       () =>
@@ -189,6 +195,7 @@ const { chromium } = require("playwright"),
         document.querySelector("#inline-content-text")?.value ===
         "Unfinished changed sentence.",
     );
+    await page.locator(".advanced-settings > summary").click();
     await page.locator("#text-dx").fill("8");
     await page.locator("#text-dy").fill("-8");
     await page.locator("#inline-color").fill("#b52244");
@@ -244,6 +251,7 @@ const { chromium } = require("playwright"),
     );
     await page.click('[aria-label="Make this text editable: Maria Garcia"]');
     await page.locator("#recovery-inline").fill("María Reviewed");
+    await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.click("#review-recovered");
     await page.waitForSelector("[data-ocr-text]");
@@ -351,13 +359,11 @@ const { chromium } = require("playwright"),
       return [...(await doc.save())];
     });
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page
-      .locator("#file-input")
-      .setInputFiles({
-        name: "clipped.pdf",
-        mimeType: "application/pdf",
-        buffer: Buffer.from(clippedBytes),
-      });
+    await page.locator("#file-input").setInputFiles({
+      name: "clipped.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from(clippedBytes),
+    });
     await page.locator("#busy").waitFor({ state: "hidden" });
     await page
       .getByRole("button", {

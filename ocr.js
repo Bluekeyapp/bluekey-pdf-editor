@@ -21,9 +21,21 @@ export async function recognizePage(
 ) {
   await load();
   if (signal.aborted) throw new DOMException("Canceled", "AbortError");
-  let worker;
-  const cancel = () => worker?.terminate();
-  signal.addEventListener("abort", cancel, { once: true });
+  // Encode before creating a worker. Tesseract defers canvas encoding internally;
+  // terminating it during that callback can otherwise send to a null worker.
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (value) =>
+        value
+          ? resolve(value)
+          : reject(Error("The scan image could not be prepared.")),
+      "image/png",
+    ),
+  );
+  if (signal.aborted) throw new DOMException("Canceled", "AbortError");
+  const pixels = new Uint8Array(await blob.arrayBuffer());
+  if (signal.aborted) throw new DOMException("Canceled", "AbortError");
+  let worker, cancel;
   try {
     worker = await Tesseract.createWorker(language, 1, {
       workerPath: new URL("./vendor/ocr/worker.min.js", import.meta.url).href,
@@ -34,19 +46,20 @@ export async function recognizePage(
       errorHandler: () => {},
     });
     if (signal.aborted) throw new DOMException("Canceled", "AbortError");
-    const aborted = new Promise((_, reject) =>
-      signal.addEventListener(
-        "abort",
-        () => reject(new DOMException("Canceled", "AbortError")),
-        { once: true },
-      ),
-    );
-    await worker.setParameters({
-      tessedit_pageseg_mode: options.region ? "6" : "3",
-      preserve_interword_spaces: "1",
+    const aborted = new Promise((_, reject) => {
+      cancel = () => reject(new DOMException("Canceled", "AbortError"));
+      signal.addEventListener("abort", cancel, { once: true });
     });
+    await Promise.race([
+      worker.setParameters({
+        tessedit_pageseg_mode: options.region ? "6" : "3",
+        preserve_interword_spaces: "1",
+      }),
+      aborted,
+    ]);
+    if (signal.aborted) throw new DOMException("Canceled", "AbortError");
     const { data } = await Promise.race([
-      worker.recognize(canvas, options.deskew ? { rotateAuto: true } : {}, {
+      worker.recognize(pixels, options.deskew ? { rotateAuto: true } : {}, {
         text: true,
         blocks: true,
       }),
@@ -62,10 +75,13 @@ export async function recognizePage(
         bbox: l.bbox,
       }));
   } finally {
-    signal.removeEventListener("abort", cancel);
+    if (cancel) signal.removeEventListener("abort", cancel);
+    // Let already queued library microtasks finish posting before termination.
+    if (signal.aborted) await new Promise((resolve) => setTimeout(resolve, 0));
     if (worker) await worker.terminate().catch(() => {});
   }
 }
+
 export function prepareScan(
   canvas,
   region = { x: 0, y: 0, w: 1, h: 1 },

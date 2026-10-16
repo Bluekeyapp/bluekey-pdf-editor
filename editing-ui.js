@@ -201,7 +201,7 @@ export function createContentEditor(api) {
       if ((edit?.remove || edit?.groupLeader) && !comparison) continue;
       const box = document.createElement("button");
       box.type = "button";
-      box.className = `content-hit ${item.editable ? "" : "read-only"} ${item.id === selected ? "selected" : ""}`;
+      box.className = `content-hit ${item.type === "image" ? "image-hit" : ""} ${item.editable ? "" : "read-only"} ${item.id === selected ? "selected" : ""}`;
       box.setAttribute(
         "aria-label",
         `${item.editable ? "Edit PDF" : "Content is read-only"} · ${item.type === "text" ? "Text" : "Image"}: ${item.text || item.label}`,
@@ -444,8 +444,8 @@ export function createContentEditor(api) {
     Object.assign(input.style, {
       left: x * scale + "px",
       top: y * scale + "px",
-      width: Math.max(24, layout.width * yScale * scale) + "px",
-      height: Math.max(18, layout.height * yScale * scale) + "px",
+      width: Math.max(30, layout.width * yScale * scale + 10) + "px",
+      height: Math.max(28, layout.height * yScale * scale + 8) + "px",
       fontSize: Math.max(4, layout.size * yScale * scale) + "px",
       transformOrigin: "0 0",
       transform: `matrix(${transform[0] / yScale},${transform[1] / yScale},${-transform[2] / yScale},${-transform[3] / yScale},0,0)`,
@@ -457,20 +457,62 @@ export function createContentEditor(api) {
         ? "italic"
         : "normal",
     });
+    input.wrap = edit.fit === "wrap" ? "soft" : "off";
+    positionFormatbar();
   }
+  let barFrame;
+  const barResize = new ResizeObserver(positionFormatbar);
+  function positionFormatbar() {
+    cancelAnimationFrame(barFrame);
+    barFrame = requestAnimationFrame(() => {
+      const bar = layer.querySelector(".inline-formatbar"),
+        input = $("#inline-content-text");
+      if (!bar || !input) return;
+      const stage = $("#stage").getBoundingClientRect(),
+        box = input.getBoundingClientRect(),
+        visual = window.visualViewport,
+        top = Math.max(stage.top, visual?.offsetTop || 0) + 8,
+        bottom =
+          Math.min(
+            stage.bottom,
+            (visual?.offsetTop || 0) + (visual?.height || innerHeight),
+          ) - 8;
+      bar.style.maxWidth =
+        Math.max(240, Math.min(620, stage.width - 16)) + "px";
+      const size = bar.getBoundingClientRect();
+      bar.style.left =
+        Math.max(
+          stage.left + 8,
+          Math.min(box.left, stage.right - size.width - 8),
+        ) + "px";
+      const above = box.top - size.height - 10,
+        below = box.bottom + 10;
+      bar.style.top =
+        (above >= top ? above : below + size.height <= bottom ? below : top) +
+        "px";
+      bar.hidden = box.bottom < top || box.top > bottom;
+    });
+  }
+  $("#stage").addEventListener("scroll", positionFormatbar, { passive: true });
+  window.addEventListener("resize", positionFormatbar);
+  window.visualViewport?.addEventListener("resize", positionFormatbar);
+  new ResizeObserver(positionFormatbar).observe(layer);
   function floatingToolbar() {
     const bar = document.createElement("div");
     bar.className = "inline-formatbar";
     bar.setAttribute("role", "toolbar");
     bar.setAttribute("aria-label", "Text formatting");
     bar.innerHTML = `<button type="button" id="inline-previous" title="Previous text">←</button><button type="button" id="inline-next" title="Next text">→</button><select id="inline-family" aria-label="Text typeface"><option value="original">Original</option><option value="Helvetica">Helvetica</option><option value="Times">Times</option><option value="Courier">Courier</option></select><button type="button" id="inline-bold" aria-label="Bold">B</button><button type="button" id="inline-italic" aria-label="Italic">I</button><input id="inline-size" aria-label="Text size" type="number" min="2" max="200"><input id="inline-color" aria-label="Text color" type="color"><select id="inline-align" aria-label="Text alignment"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select><button type="button" id="inline-apply">Apply</button><button type="button" id="inline-cancel">Cancel</button>`;
-    const b = bounds(current(), buffer),
-      scale = $("#page-wrap").clientWidth / api.viewport().width;
-    bar.style.left =
-      Math.max(6, Math.min(b.x * scale, $("#page-wrap").clientWidth - 470)) +
-      "px";
-    bar.style.top = Math.max(6, b.y * scale - 60) + "px";
     layer.append(bar);
+    const more = document.createElement("button");
+    more.id = "inline-more";
+    more.type = "button";
+    more.textContent = "More formatting";
+    more.onclick = () => api.showProperties?.();
+    bar.append(more);
+    barResize.disconnect();
+    barResize.observe(bar);
+    positionFormatbar();
     $("#inline-previous").onclick = () => selectNext(-1);
     $("#inline-next").onclick = () => selectNext(1);
     $("#inline-apply").onclick = apply;
@@ -546,6 +588,7 @@ export function createContentEditor(api) {
       selected = null;
       refresh();
     };
+    prioritizeDetails();
     api.resize();
   }
   function recoveryInline() {
@@ -572,6 +615,12 @@ export function createContentEditor(api) {
       if (event.key === "Escape") $("#cancel-recovered").click();
     };
     layer.append(input);
+    input.style.fontSize =
+      Math.max(
+        10,
+        (recovery.region.h * $("#page-wrap").clientHeight * 0.78) /
+          Math.max(1, recovery.text.split("\n").length),
+      ) + "px";
     const caret = pendingFocus || recovery.caret;
     pendingFocus = null;
     if (caret) {
@@ -728,6 +777,17 @@ export function createContentEditor(api) {
     details();
     draw();
   }
+  let detailKey = null;
+  function prioritizeDetails() {
+    const next = recovery
+      ? "recovery:" + JSON.stringify(recovery.region)
+      : selected;
+    const options = panel().querySelector(".page-options");
+    if (options && next) options.open = false;
+    if (next !== detailKey) panel().scrollTop = 0;
+    detailKey = next;
+    api.resize();
+  }
   function details() {
     const item = current();
     if (!item) return;
@@ -741,7 +801,7 @@ export function createContentEditor(api) {
           : comparison
             ? "<p>Showing the original page. Switch to Edited to make changes.</p>"
             : item.type === "text"
-              ? `<label for="content-text">Replacement text</label><textarea id="content-text" aria-label="Edit original text">${esc(edit.text ?? item.text)}</textarea><div class="edit-grid"><label>Size (pt)<input id="text-size" type="number" min="2" max="200" value="${edit.size || item.size}"></label><label>Box width<input id="text-width" type="number" min="4" value="${edit.width || Math.max(4, Math.round(item.advance))}"></label></div><label for="text-fit">Longer text</label><select id="text-fit"><option value="shrink">Shrink to fit</option><option value="wrap">Wrap into lines</option><option value="keep">Keep size</option></select><label for="text-font">Font</label><select id="text-font"><option value="auto">Reuse original when possible</option><option value="fallback">Use matching standard font</option><option value="embedded">Embed Liberation Sans</option><option value="custom">Use imported font</option></select><div class="edit-grid"><label>Typeface<select id="text-family"><option value="original">Original family</option><option value="Helvetica">Helvetica</option><option value="Times">Times</option><option value="Courier">Courier</option></select></label><label>Style<select id="text-style"><option value="original">Original style</option><option value="regular">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option><option value="bolditalic">Bold italic</option></select></label><label>Text color<input id="text-color" type="color" value="${edit.color || originalColor(item)}"></label><label>Move X<input id="text-dx" type="number" step="1" value="${edit.dx || 0}"></label><label>Move Y<input id="text-dy" type="number" step="1" value="${edit.dy || 0}"></label></div><label>Import a font (TTF / OTF)<input id="import-text-font" type="file" accept=".ttf,.otf"></label><div class="edit-grid"><label>Alignment<select id="text-align"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label><label>Line spacing<input id="text-leading" type="number" min="0.8" max="3" step="0.1" value="${edit.lineHeight || 1.2}"></label></div><label><input type="checkbox" id="allow-overlap" ${edit.allowOverlap ? "checked" : ""}> Allow overlap after review</label><label><input type="checkbox" id="allow-overflow" ${edit.allowOverflow ? "checked" : ""}> Allow overflow after review</label>`
+              ? `<label for="content-text">Replacement text</label><textarea id="content-text" aria-label="Edit original text">${esc(edit.text ?? item.text)}</textarea><div class="edit-grid"><label>Size (pt)<input id="text-size" type="number" min="2" max="200" value="${edit.size || item.size}"></label><label>Box width<input id="text-width" type="number" min="4" value="${edit.width || Math.max(4, Math.round(item.advance))}"></label></div><label for="text-fit">Longer text</label><select id="text-fit"><option value="shrink">Shrink to fit</option><option value="wrap">Wrap into lines</option><option value="keep">Keep size</option></select><details class="advanced-settings"><summary>Font, position and overflow</summary><label for="text-font">Font</label><select id="text-font"><option value="auto">Reuse original when possible</option><option value="fallback">Use matching standard font</option><option value="embedded">Embed Liberation Sans</option><option value="custom">Use imported font</option></select><div class="edit-grid"><label>Typeface<select id="text-family"><option value="original">Original family</option><option value="Helvetica">Helvetica</option><option value="Times">Times</option><option value="Courier">Courier</option></select></label><label>Style<select id="text-style"><option value="original">Original style</option><option value="regular">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option><option value="bolditalic">Bold italic</option></select></label><label>Text color<input id="text-color" type="color" value="${edit.color || originalColor(item)}"></label><label>Move X<input id="text-dx" type="number" step="1" value="${edit.dx || 0}"></label><label>Move Y<input id="text-dy" type="number" step="1" value="${edit.dy || 0}"></label></div><label>Import a font (TTF / OTF)<input id="import-text-font" type="file" accept=".ttf,.otf"></label><div class="edit-grid"><label>Alignment<select id="text-align"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label><label>Line spacing<input id="text-leading" type="number" min="0.8" max="3" step="0.1" value="${edit.lineHeight || 1.2}"></label></div><label><input type="checkbox" id="allow-overlap" ${edit.allowOverlap ? "checked" : ""}> Allow overlap after review</label><label><input type="checkbox" id="allow-overflow" ${edit.allowOverflow ? "checked" : ""}> Allow overflow after review</label></details>`
               : `<label>Replace image<input type="file" id="replace-content-image" aria-label="Replace original image" accept="image/png,image/jpeg"></label><label>Replacement fit<select id="image-fit"><option value="contain">Keep proportions (fit)</option><option value="cover">Keep proportions (crop to fill)</option></select></label><div class="edit-grid">${[
                   ["dx", "Move X", 0],
                   ["dy", "Move Y", 0],
@@ -759,6 +819,7 @@ export function createContentEditor(api) {
       }<p id="edit-status" aria-live="polite"></p><div class="edit-actions">${item.editable && !comparison ? '<button class="primary" id="apply-content">Apply</button><button class="secondary" id="cancel-content">Cancel</button>' : ""}${hasEdit ? '<button class="secondary" id="reset-object">Reset this object</button>' : ""}</div>`;
     const actions = $("#object-details>.edit-actions");
     if (actions) $("#object-details").prepend(actions);
+    prioritizeDetails();
     if ($("#reset-object"))
       $("#reset-object").onclick = async () => {
         const p = api.page(),
@@ -983,9 +1044,26 @@ export function createContentEditor(api) {
       } catch {}
       recoveries.push(...(api.recognized?.(p) || []));
       const routes = analyzeRoutes(result.items, recoveries.length);
-      const edits = Object.keys(p.contentEdits || {}).length,
-        editable = result.items.filter((i) => i.editable).length;
-      panel().innerHTML = `<h3>Edit PDF</h3><p>Tap text to edit it, or select an area to reconstruct.</p><div class="route-summary">${routes.direct} direct text edits · ${routes.rebuild} need reconstruction${routes.scan ? " · No native text detected" : ""}</div><label>Selection<select id="text-selection"><option value="word">Word</option><option value="sentence">Sentence</option><option value="paragraph">Paragraph</option></select></label><p>Click text and type. Alt + Left / Right selects nearby text. Unapplied typing is saved in your draft.</p><button class="primary full" id="select-text-area">Make an area editable</button>${blocks.length ? `<label>Sentences & paragraphs<select id="text-block-picker"><option value="">Choose a text block</option>${blocks.map((b, i) => `<option value="${i}">${esc(b.text.slice(0, 70))}</option>`).join("")}</select></label>` : ""}<div class="compare-tabs"><button id="show-edited" class="${comparison ? "" : "active"}">Edited</button><button id="show-original" class="${comparison ? "active" : ""}">Original</button></div><p>${editable} editable · ${result.items.length - editable} read-only · ${edits} changed</p><label for="object-picker">Page objects</label><select id="object-picker"><option value="">Choose text or an image</option>${result.items.map((i) => `<option value="${esc(i.id)}" data-label="${esc((i.editable ? "" : "🔒 ") + (i.text || i.label || i.reason).slice(0, 85))}" data-document-text="${!!i.text}" data-changed="${!!p.contentEdits?.[i.id]}">${i.editable ? "" : "🔒 "}${esc((i.text || t(i.label || i.reason)).slice(0, 85))}${p.contentEdits?.[i.id] ? getChangedLabel() : ""}</option>`).join("")}</select><div id="object-details"><p>Select an object to edit it. Green outlines are editable; dashed amber outlines are read-only.</p></div><details class="compatibility"><summary>Compatibility details</summary><p>${esc(result.warnings.join(" ") || "All recognized objects on this page are supported.")}</p><p>Fonts with missing replacement characters use a standard-font fallback. Scans require OCR. Removal is not secure redaction.</p></details><div class="edit-actions"><button class="secondary" id="reset-content" ${edits ? "" : "disabled"}>Reset page edits</button><button class="secondary" id="ocr-page">Scan / OCR</button></div>`;
+      const edits = Object.keys(p.contentEdits || {}).length;
+      panel().innerHTML = `<h3>Edit PDF</h3><p>Tap text to edit it, or select an area to reconstruct.</p><div class="route-summary">${routes.direct} direct text edits · ${routes.rebuild} need reconstruction${routes.scan ? " · No native text detected" : ""}</div><label>Selection<select id="text-selection"><option value="word">Word</option><option value="sentence">Sentence</option><option value="paragraph">Paragraph</option></select></label><p>Click text and type. Alt + Left / Right selects nearby text. Unapplied typing is saved in your draft.</p><button class="primary full" id="select-text-area">Make an area editable</button>${blocks.length ? `<label>Sentences & paragraphs<select id="text-block-picker"><option value="">Choose a text block</option>${blocks.map((b, i) => `<option value="${i}">${esc(b.text.slice(0, 70))}</option>`).join("")}</select></label>` : ""}<div class="compare-tabs"><button id="show-edited" class="${comparison ? "" : "active"}">Edited</button><button id="show-original" class="${comparison ? "active" : ""}">Original</button></div><p class="object-count">${result.items.filter((i) => i.type === "image" && i.editable).length} editable images · ${edits} changed objects</p><label for="object-picker">Page objects</label><select id="object-picker"><option value="">Choose text or an image</option>${result.items.map((i) => `<option value="${esc(i.id)}" data-label="${esc((i.editable ? "" : "🔒 ") + (i.text || i.label || i.reason).slice(0, 85))}" data-document-text="${!!i.text}" data-changed="${!!p.contentEdits?.[i.id]}">${i.editable ? "" : "🔒 "}${esc((i.text || t(i.label || i.reason)).slice(0, 85))}${p.contentEdits?.[i.id] ? getChangedLabel() : ""}</option>`).join("")}</select><div id="object-details"><p>Select an object to edit it. Green text is directly editable. Amber text needs review and reconstruction. Image outlines appear on hover or selection.</p></div><details class="compatibility"><summary>Compatibility details</summary><p>${esc(result.warnings.join(" ") || "All recognized objects on this page are supported.")}</p><p>Fonts with missing replacement characters use a standard-font fallback. Scans require OCR. Removal is not secure redaction.</p></details><div class="edit-actions"><button class="secondary" id="reset-content" ${edits ? "" : "disabled"}>Reset page edits</button><button class="secondary" id="ocr-page">Scan / OCR</button></div>`;
+      const pageOptions = document.createElement("details");
+      pageOptions.className = "page-options";
+      pageOptions.open = !selected && !recovery;
+      pageOptions.innerHTML = "<summary>Page tools and recognition</summary>";
+      const heading = panel().querySelector("h3"),
+        detail = $("#object-details"),
+        compareTabs = panel().querySelector(".compare-tabs"),
+        scopeLabel = $("#text-selection").closest("label");
+      for (const node of [...panel().children])
+        if (
+          node !== heading &&
+          node !== detail &&
+          node !== compareTabs &&
+          node !== scopeLabel
+        )
+          pageOptions.append(node);
+      panel().append(pageOptions);
+      heading.after(compareTabs, scopeLabel, detail);
       $("#text-selection").value = selectionScope;
       $("#text-selection").onchange = (event) => {
         selectionScope = event.target.value;

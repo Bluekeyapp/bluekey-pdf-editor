@@ -10,6 +10,16 @@ GitHub Pages publishes the static application from `main` at the repository root
 
 Drafts are stored in the browser for each website origin. Moving from localhost or bluekeyapp.com to the standalone GitHub Pages address does not transfer drafts automatically. Export PDFs at the original location and reopen them in the new app. No client files are stored in this repository.
 
+## Workspace improvements (0.5.1)
+
+The editing workspace keeps common tools visible and groups the others under **More tools** on smaller screens. **Save options** explains automatic local drafts and portable project backups; **Export PDF** remains the primary action. On phones, **Show properties** opens a dismissible drawer. The inline toolbar measures its position against the selected text and available viewport, including zoom and rotation, instead of assuming a fixed toolbar height.
+
+Selected text/image controls and OCR confidence come before page-wide tools. Font, position and overflow controls are expandable. Images only show their outlines on hover or selection. Text and image counts are reported separately. Search highlights exact matched text and identifies the current occurrence, with readable result cards.
+
+Reconstruction uses a review/compare workflow. Desktop shows a larger preview beside the corrections; phones switch between correction and comparison. One scrollable body and a separate footer keep actions from covering fields. Font/background/recognition options and the explicit lossy raster fallback remain available under settings. Preview validation and the original-draft protection are unchanged.
+
+`tests/workspace-ui.cjs` checks 1440, 1100, 390 and 320 px layouts, toolbar clearance, overflow menus, the properties drawer, save actions, exact search highlighting, reconstruction preview invalidation and French labels. These viewport checks do not replace physical-device keyboard testing.
+
 ## Text editing improvements (0.5.0)
 
 The app analyzes the current page first, then works through the remaining pages in the background. The status bar distinguishes native text, scans, mixed pages, searchable scans and empty pages. Pause/resume controls stop background work without canceling Apply or Export. Image regions on mixed pages and pages containing outlined/vector text can use local OCR. Existing OCR layers are reused instead of generating duplicate text outlines. Automatic OCR uses the current interface language (French or English); the reconstruction dialog also offers Spanish and combined models. Download the relevant language assets while online before relying on offline recognition.
