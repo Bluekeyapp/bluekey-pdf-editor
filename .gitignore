@@ -3,3 +3,5 @@ tests/*.png
 tests/*.pdf
 tests/poppler-diagnostics.txt
 node_modules/
+
+tests/*.bluekey.json

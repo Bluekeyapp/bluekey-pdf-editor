@@ -1,8 +1,278 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#155d55"><title>BlueKey PDF Editor</title><link rel="icon" href="icon.svg"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"></head>
-<body>
-<aside class="sidebar"><a class="brand" href="#" aria-label="BlueKey PDF Editor home"><span class="brand-icon"><i data-lucide="files"></i></span><span>BlueKey<span class="brand-sub">PDF EDITOR</span></span></a><div class="workspace-label">WORKSPACE</div><button class="nav active" id="nav-home"><i data-lucide="folder-open"></i> My documents <span id="doc-count">0</span></button><button class="nav" id="nav-import"><i data-lucide="file-plus-2"></i> Open a PDF</button><button class="nav" id="nav-demo"><i data-lucide="sparkles"></i> Try a sample</button><div class="sidebar-bottom"><div class="privacy-icon"><i data-lucide="shield-check"></i></div><strong>Your files stay yours.</strong><p>Documents are processed on this device. No uploads. No account.</p><button class="text-button" id="about">About this local preview <i data-lucide="arrow-up-right"></i></button><div class="profile"><span>BK</span><div>Local workspace<small>On this browser</small></div><i data-lucide="hard-drive"></i></div></div></aside>
-<main id="home"><header class="home-top"><span>Workspace <span class="slash">/</span> My documents</span><div class="home-controls"><div class="language-switch" role="group" aria-label="Language"><button type="button" data-lang="fr" aria-label="Français" aria-pressed="true" data-no-i18n>FR</button><button type="button" data-lang="en" aria-label="English" aria-pressed="false" data-no-i18n>EN</button></div><span class="badge"><span class="dot"></span> LOCAL PREVIEW</span></div></header><section class="home-content"><div class="heading-row"><div><div class="eyebrow">A LITTLE LESS PAPERWORK</div><h1>Your documents.<br><span>Ready for what’s next.</span></h1><p class="intro">Read, fill, sign, and share. All in one quiet workspace.</p></div><div class="hero-art" aria-hidden="true"><div class="art-back"></div><div class="art-paper"><span class="art-pdf">PDF</span><div></div><div></div><div></div><span class="art-sign">Approved</span></div><span class="art-check"><i data-lucide="check"></i></span></div></div><div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Open PDF files"><div class="upload-icon"><i data-lucide="upload"></i></div><div><h2>Bring your PDF. We’ll handle the rest.</h2><p>Drop a file here, or choose one from your device</p><small>PDF files · up to 40 MB each · processed locally</small></div><button class="primary" id="open-pdf"><i data-lucide="plus"></i> Open PDF</button></div><div class="quick-grid"><button id="sample-card" class="quick-card"><span class="quick-icon mint"><i data-lucide="signature"></i></span><span><strong>Take it for a spin</strong><small>Fill & sign a sample document</small></span><i data-lucide="arrow-up-right"></i></button><button id="blank-card" class="quick-card"><span class="quick-icon peach"><i data-lucide="file-plus"></i></span><span><strong>Start with a blank page</strong><small>Add text, images, and ideas</small></span><i data-lucide="arrow-up-right"></i></button></div><div class="demo-links"><button class="secondary" id="editing-demo">Try the editing playground</button><button class="secondary" id="text-demo">Try the text editing lab</button><button class="secondary" id="scan-demo">Try a scanned page</button></div><div class="section-row"><h2>My documents <span id="library-count">0</span></h2><label class="library-search"><i data-lucide="search"></i><input id="library-search" placeholder="Find a document" aria-label="Find a document"></label></div><div id="library" class="library"></div><div class="home-footer"><i data-lucide="lock-keyhole"></i> Saved drafts live in this browser. Download a copy to keep it outside the app.</div></section></main>
-<main id="editor" hidden><header class="editor-header"><button class="icon-btn" id="back" aria-label="Back to documents"><i data-lucide="arrow-left"></i></button><div class="document-title"><input id="document-name" aria-label="Document name"><span id="save-status" aria-live="polite">Draft saved on this device</span></div><div class="language-switch" role="group" aria-label="Language"><button type="button" data-lang="fr" aria-label="Français" aria-pressed="true" data-no-i18n>FR</button><button type="button" data-lang="en" aria-label="English" aria-pressed="false" data-no-i18n>EN</button></div><div class="history"><button class="icon-btn" id="undo" aria-label="Undo"><i data-lucide="undo-2"></i></button><button class="icon-btn" id="redo" aria-label="Redo"><i data-lucide="redo-2"></i></button></div><button class="secondary save-draft" id="save-draft"><i data-lucide="hard-drive-download"></i> Save draft</button><button class="primary" id="export"><i data-lucide="download"></i><span>Export PDF</span></button></header><div class="toolbar" id="toolbar"></div><div class="editor-body"><aside class="pages-panel"><div class="panel-title"><strong>Pages</strong><span id="page-count"></span></div><div id="page-list"></div><button class="secondary full" id="merge"><i data-lucide="plus"></i> Add PDF</button><div class="page-actions"><button id="move-up" title="Move page earlier" aria-label="Move page earlier"><i data-lucide="arrow-up"></i></button><button id="move-down" title="Move page later" aria-label="Move page later"><i data-lucide="arrow-down"></i></button><button id="rotate" title="Rotate page" aria-label="Rotate page"><i data-lucide="rotate-cw"></i></button><button id="delete-page" title="Delete page" aria-label="Delete page"><i data-lucide="trash-2"></i></button></div></aside><section class="document-stage" id="stage"><div class="page-hint" id="page-hint">Fill the highlighted fields, or choose a tool above.</div><div id="page-wrap"><canvas id="pdf-canvas"></canvas><div id="fields"></div><canvas id="marks-canvas"></canvas></div><div class="stage-bottom"><button class="icon-btn" id="prev-page" aria-label="Previous page"><i data-lucide="chevron-left"></i></button><span id="page-position">1 / 1</span><button class="icon-btn" id="next-page" aria-label="Next page"><i data-lucide="chevron-right"></i></button><span class="divider"></span><button class="icon-btn" id="zoom-out" aria-label="Zoom out"><i data-lucide="minus"></i></button><button id="zoom-fit" class="text-button">Fit</button><button class="icon-btn" id="zoom-in" aria-label="Zoom in"><i data-lucide="plus"></i></button></div></section><aside class="properties" id="properties"></aside></div></main>
-<input id="file-input" type="file" accept="application/pdf,.pdf" multiple hidden><input id="image-input" type="file" accept="image/png,image/jpeg" hidden><div id="toast" role="status" hidden></div><div id="busy" hidden><div class="spinner"></div><span>Opening your document…</span></div><dialog id="modal"><div id="modal-content"></div></dialog>
-<script type="module">import {initI18n} from "./i18n.js"; initI18n();</script><script src="vendor/pdf-lib.min.js"></script><script src="vendor/lucide.min.js"></script><script type="module" src="app.js"></script></body></html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#155d55" />
+    <title>BlueKey PDF Editor</title>
+    <link rel="icon" href="icon.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="BlueKey PDF Editor home"
+        ><span class="brand-icon"><i data-lucide="files"></i></span
+        ><span>BlueKey<span class="brand-sub">PDF EDITOR</span></span></a
+      >
+      <div class="workspace-label">WORKSPACE</div>
+      <button class="nav active" id="nav-home">
+        <i data-lucide="folder-open"></i> My documents
+        <span id="doc-count">0</span></button
+      ><button class="nav" id="nav-import">
+        <i data-lucide="file-plus-2"></i> Open a PDF</button
+      ><button class="nav" id="nav-demo">
+        <i data-lucide="sparkles"></i> Try a sample
+      </button>
+      <div class="sidebar-bottom">
+        <div class="privacy-icon"><i data-lucide="shield-check"></i></div>
+        <strong>Your files stay yours.</strong>
+        <p>Documents are processed on this device. No uploads. No account.</p>
+        <button class="text-button" id="about">
+          About this local preview <i data-lucide="arrow-up-right"></i>
+        </button>
+        <div class="profile">
+          <span>BK</span>
+          <div>Local workspace<small>On this browser</small></div>
+          <i data-lucide="hard-drive"></i>
+        </div>
+      </div>
+    </aside>
+    <main id="home">
+      <header class="home-top">
+        <span>Workspace <span class="slash">/</span> My documents</span>
+        <div class="home-controls">
+          <div class="language-switch" role="group" aria-label="Language">
+            <button
+              type="button"
+              data-lang="fr"
+              aria-label="Français"
+              aria-pressed="true"
+              data-no-i18n
+            >
+              FR</button
+            ><button
+              type="button"
+              data-lang="en"
+              aria-label="English"
+              aria-pressed="false"
+              data-no-i18n
+            >
+              EN
+            </button>
+          </div>
+          <span class="badge"><span class="dot"></span> LOCAL PREVIEW</span>
+        </div>
+      </header>
+      <section class="home-content">
+        <div class="heading-row">
+          <div>
+            <div class="eyebrow">A LITTLE LESS PAPERWORK</div>
+            <h1>Your documents.<br /><span>Ready for what’s next.</span></h1>
+            <p class="intro">
+              Read, fill, sign, and share. All in one quiet workspace.
+            </p>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-back"></div>
+            <div class="art-paper">
+              <span class="art-pdf">PDF</span>
+              <div></div>
+              <div></div>
+              <div></div>
+              <span class="art-sign">Approved</span>
+            </div>
+            <span class="art-check"><i data-lucide="check"></i></span>
+          </div>
+        </div>
+        <div
+          class="dropzone"
+          id="dropzone"
+          tabindex="0"
+          role="button"
+          aria-label="Open PDF files"
+        >
+          <div class="upload-icon"><i data-lucide="upload"></i></div>
+          <div>
+            <h2>Bring your PDF. We’ll handle the rest.</h2>
+            <p>Drop a file here, or choose one from your device</p>
+            <small>PDF files · up to 40 MB each · processed locally</small>
+          </div>
+          <button class="primary" id="open-pdf">
+            <i data-lucide="plus"></i> Open PDF
+          </button>
+        </div>
+        <div class="quick-grid">
+          <button id="sample-card" class="quick-card">
+            <span class="quick-icon mint"><i data-lucide="signature"></i></span
+            ><span
+              ><strong>Take it for a spin</strong
+              ><small>Fill & sign a sample document</small></span
+            ><i data-lucide="arrow-up-right"></i></button
+          ><button id="blank-card" class="quick-card">
+            <span class="quick-icon peach"><i data-lucide="file-plus"></i></span
+            ><span
+              ><strong>Start with a blank page</strong
+              ><small>Add text, images, and ideas</small></span
+            ><i data-lucide="arrow-up-right"></i>
+          </button>
+        </div>
+        <div class="demo-links">
+          <button class="secondary" id="editing-demo">
+            Try the editing playground</button
+          ><button class="secondary" id="text-demo">
+            Try the text editing lab</button
+          ><button class="secondary" id="scan-demo">Try a scanned page</button>
+        </div>
+        <div class="section-row">
+          <h2>My documents <span id="library-count">0</span></h2>
+          <label class="library-search"
+            ><i data-lucide="search"></i
+            ><input
+              id="library-search"
+              placeholder="Find a document"
+              aria-label="Find a document"
+          /></label>
+        </div>
+        <div id="library" class="library"></div>
+        <div class="home-footer">
+          <i data-lucide="lock-keyhole"></i> Saved drafts live in this browser.
+          Download a copy to keep it outside the app.
+        </div>
+      </section>
+    </main>
+    <main id="editor" hidden>
+      <header class="editor-header">
+        <button class="icon-btn" id="back" aria-label="Back to documents">
+          <i data-lucide="arrow-left"></i>
+        </button>
+        <div class="document-title">
+          <input id="document-name" aria-label="Document name" /><span
+            id="save-status"
+            aria-live="polite"
+            >Draft saved on this device</span
+          >
+        </div>
+        <div class="language-switch" role="group" aria-label="Language">
+          <button
+            type="button"
+            data-lang="fr"
+            aria-label="Français"
+            aria-pressed="true"
+            data-no-i18n
+          >
+            FR</button
+          ><button
+            type="button"
+            data-lang="en"
+            aria-label="English"
+            aria-pressed="false"
+            data-no-i18n
+          >
+            EN
+          </button>
+        </div>
+        <div class="history">
+          <button class="icon-btn" id="undo" aria-label="Undo">
+            <i data-lucide="undo-2"></i></button
+          ><button class="icon-btn" id="redo" aria-label="Redo">
+            <i data-lucide="redo-2"></i>
+          </button>
+        </div>
+        <button class="secondary save-draft" id="save-draft">
+          <i data-lucide="hard-drive-download"></i> Save draft</button
+        ><button class="primary" id="export">
+          <i data-lucide="download"></i><span>Export PDF</span>
+        </button>
+      </header>
+      <div class="toolbar" id="toolbar"></div>
+      <div class="editor-body">
+        <aside class="pages-panel">
+          <div class="panel-title">
+            <strong>Pages</strong><span id="page-count"></span>
+          </div>
+          <div id="page-list"></div>
+          <button class="secondary full" id="merge">
+            <i data-lucide="plus"></i> Add PDF
+          </button>
+          <div class="page-actions">
+            <button
+              id="move-up"
+              title="Move page earlier"
+              aria-label="Move page earlier"
+            >
+              <i data-lucide="arrow-up"></i></button
+            ><button
+              id="move-down"
+              title="Move page later"
+              aria-label="Move page later"
+            >
+              <i data-lucide="arrow-down"></i></button
+            ><button id="rotate" title="Rotate page" aria-label="Rotate page">
+              <i data-lucide="rotate-cw"></i></button
+            ><button
+              id="delete-page"
+              title="Delete page"
+              aria-label="Delete page"
+            >
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </aside>
+        <section class="document-stage" id="stage">
+          <div class="page-hint" id="page-hint">
+            Fill the highlighted fields, or choose a tool above.
+          </div>
+          <div id="page-wrap">
+            <canvas id="pdf-canvas"></canvas>
+            <div id="fields"></div>
+            <canvas id="marks-canvas"></canvas>
+          </div>
+          <div class="stage-bottom">
+            <button class="icon-btn" id="prev-page" aria-label="Previous page">
+              <i data-lucide="chevron-left"></i></button
+            ><span id="page-position">1 / 1</span
+            ><button class="icon-btn" id="next-page" aria-label="Next page">
+              <i data-lucide="chevron-right"></i></button
+            ><span class="divider"></span
+            ><button class="icon-btn" id="zoom-out" aria-label="Zoom out">
+              <i data-lucide="minus"></i></button
+            ><button id="zoom-fit" class="text-button">Fit</button
+            ><button class="icon-btn" id="zoom-in" aria-label="Zoom in">
+              <i data-lucide="plus"></i>
+            </button>
+          </div>
+        </section>
+        <aside class="properties" id="properties"></aside>
+      </div>
+    </main>
+    <input
+      id="file-input"
+      type="file"
+      accept="application/pdf,.pdf"
+      multiple
+      hidden
+    /><input
+      id="image-input"
+      type="file"
+      accept="image/png,image/jpeg"
+      hidden
+    />
+    <div id="toast" role="status" hidden></div>
+    <div id="busy" hidden>
+      <div class="spinner"></div>
+      <span>Opening your document…</span>
+    </div>
+    <dialog id="modal"><div id="modal-content"></div></dialog>
+    <script type="module">
+      import { initI18n } from "./i18n.js";
+      initI18n();
+    </script>
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="vendor/lucide.min.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

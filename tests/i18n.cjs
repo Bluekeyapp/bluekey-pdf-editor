@@ -1,23 +1,63 @@
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-(async()=>{
- const {t,setLanguage,messages,locale}=await import('../i18n.js');
- setLanguage('fr');assert.equal(locale(),'fr-FR');
- for(const [english,french]of Object.entries(messages))assert.equal(t(english),french,english);
- assert.equal(t('Delete draft Client report.pdf'),'Supprimer le brouillon Client report.pdf');
- assert.equal(t('Edit PDF · Text: Your documents.'),'Modifier le PDF · Texte : Your documents.');
- assert.equal(t('Area 2 · 70% confidence — check carefully'),'Zone 2 · 70 % de confiance — à vérifier attentivement');
- assert.equal(t('Original font preserved. 2 lines · 15.0 pt. Wrapped lines can overlap other objects; review the page. Overlaps 1 nearby content area(s).'),'Police originale conservée. 2 lignes · 15,0 pt. Les lignes peuvent chevaucher d’autres objets ; vérifiez la page. Chevauche 1 zone de contenu voisine.');
- assert.equal(t('Font could not load: The local font could not load.'),'Impossible de charger la police : Impossible de charger la police locale.');
- assert.equal(t(' - completed'),' - finalisé');
- globalThis.self=globalThis;await import('../vendor/pdf-lib.min.js');
- const {createSample}=await import('../pdf-core.js');const {inspectContent}=await import('../content-engine.js');
- const sample=await createSample();const analysis=await inspectContent(sample,0);
- assert(analysis.items.some(i=>i.text==='Passons à la signature.'));
- assert(!analysis.items.some(i=>i.text==="Let's make it official."));
- const loaded=await PDFLib.PDFDocument.load(sample);const widget=loaded.getForm().getField('full_name').acroField.getWidgets()[0];assert.equal(widget.dict.get(PDFLib.PDFName.of('TU')).decodeText(),'NOM COMPLET');
- setLanguage('en');assert.equal(t('Apply'),'Apply');assert.equal(locale(),'en-GB');
- const html=fs.readFileSync('index.html','utf8');assert.equal((html.match(/class="language-switch"/g)||[]).length,2);
- const assets=JSON.parse(fs.readFileSync('offline-assets.json','utf8'));assert(assets.includes('/vendor/ocr/fra.traineddata'));assert(fs.statSync('vendor/ocr/fra.traineddata').size>1000000);
- console.log('PASS: translation catalogue, dynamic counters/errors, document label preservation, French sample PDF, English switch, two controls and offline French OCR asset.');
-})().catch(e=>{console.error(e);process.exitCode=1;});
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+(async () => {
+  const { t, setLanguage, messages, locale } = await import("../i18n.js");
+  setLanguage("fr");
+  assert.equal(locale(), "fr-FR");
+  for (const [english, french] of Object.entries(messages))
+    assert.equal(t(english), french, english);
+  assert.equal(
+    t("Delete draft Client report.pdf"),
+    "Supprimer le brouillon Client report.pdf",
+  );
+  assert.equal(
+    t("Edit PDF · Text: Your documents."),
+    "Modifier le PDF · Texte : Your documents.",
+  );
+  assert.equal(
+    t("Area 2 · 70% confidence — check carefully"),
+    "Zone 2 · 70 % de confiance — à vérifier attentivement",
+  );
+  assert.equal(
+    t(
+      "Original font preserved. 2 lines · 15.0 pt. Wrapped lines can overlap other objects; review the page. Overlaps 1 nearby content area(s).",
+    ),
+    "Police originale conservée. 2 lignes · 15,0 pt. Les lignes peuvent chevaucher d’autres objets ; vérifiez la page. Chevauche 1 zone de contenu voisine.",
+  );
+  assert.equal(
+    t("Font could not load: The local font could not load."),
+    "Impossible de charger la police : Impossible de charger la police locale.",
+  );
+  assert.equal(t(" - completed"), " - finalisé");
+  globalThis.self = globalThis;
+  await import("../vendor/pdf-lib.min.js");
+  const { createSample } = await import("../pdf-core.js");
+  const { inspectContent } = await import("../content-engine.js");
+  const sample = await createSample();
+  const analysis = await inspectContent(sample, 0);
+  assert(analysis.items.some((i) => i.text === "Passons à la signature."));
+  assert(!analysis.items.some((i) => i.text === "Let's make it official."));
+  const loaded = await PDFLib.PDFDocument.load(sample);
+  const widget = loaded
+    .getForm()
+    .getField("full_name")
+    .acroField.getWidgets()[0];
+  assert.equal(
+    widget.dict.get(PDFLib.PDFName.of("TU")).decodeText(),
+    "NOM COMPLET",
+  );
+  setLanguage("en");
+  assert.equal(t("Apply"), "Apply");
+  assert.equal(locale(), "en-GB");
+  const html = fs.readFileSync("index.html", "utf8");
+  assert.equal((html.match(/class="language-switch"/g) || []).length, 2);
+  const assets = JSON.parse(fs.readFileSync("offline-assets.json", "utf8"));
+  assert(assets.includes("/vendor/ocr/fra.traineddata"));
+  assert(fs.statSync("vendor/ocr/fra.traineddata").size > 1000000);
+  console.log(
+    "PASS: translation catalogue, dynamic counters/errors, document label preservation, French sample PDF, English switch, two controls and offline French OCR asset.",
+  );
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

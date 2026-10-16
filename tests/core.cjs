@@ -1,20 +1,117 @@
-const fs=require('node:fs');
-const assert=require('node:assert/strict');
-const path=require('node:path');
-(async()=>{
- globalThis.self=globalThis;await import('../vendor/pdf-lib.min.js');const lib=globalThis.PDFLib;
- const {createSample,exportPdf,transformPoint,inversePoint}=await import('../pdf-core.js');
- const sample=await createSample();const blank=await createSample(true);
- const transform=[1,0,0,-1,0,842];
- assert.deepEqual(inversePoint(transform,...transformPoint(transform,18,30)),[18,30]);
- const basis={transform,width:595,height:842,rotation:0};
- const src={id:'sample',bytes:sample,values:{full_name:'María Client',approved:true,service:'Consultation'}};
- const state={name:'Test',sources:[src,{id:'blank',bytes:blank,values:{}}],pages:[{source:'sample',index:0,rotation:90,marks:[{type:'text',text:'Added text',x:50,y:150,size:14,color:'#155d55',basis},{type:'highlight',x:50,y:180,w:100,h:15,color:'#f1c84a',basis},{type:'draw',points:[[50,210],[75,220],[100,205]],size:2,color:'#155d55',basis},{type:'check',x:60,y:250,w:15,h:15,color:'#155d55',basis}]},{source:'blank',index:0,rotation:0,marks:[]}]};
- const out=await lib.PDFDocument.load(await exportPdf(state));assert.equal(out.getPageCount(),2);assert.equal(out.getPage(0).getRotation().angle,90);assert.equal(out.getForm().getFields().length,0);
- const extracted=await lib.PDFDocument.load(await exportPdf(state,1));assert.equal(extracted.getPageCount(),1);
- const signed=await lib.PDFDocument.create();const pg=signed.addPage();const field=signed.context.obj({FT:'Sig',T:lib.PDFHexString.fromText('signature'),Kids:[]});const ref=signed.context.register(field);signed.getForm().acroForm.addField(ref);const signedBytes=await signed.save();
- await assert.rejects(()=>exportPdf({name:'signed',sources:[{id:'s',bytes:signedBytes,values:{}}],pages:[{source:'s',index:0,rotation:0,marks:[]}]}),/signature/);
- const original=await lib.PDFDocument.load(sample);assert.equal(original.getPageCount(),2);assert(original.getForm().getFields().length>0,'export does not mutate original form');
- fs.writeFileSync(path.join(__dirname,'merged.pdf'),await exportPdf(state));
- console.log('PASS: coordinate round-trip, accented form text, flattened export, vector marks, rotation, merge, extraction, signature rejection, original preservation.');
-})().catch(e=>{console.error(e);process.exitCode=1;});
+const fs = require("node:fs");
+const assert = require("node:assert/strict");
+const path = require("node:path");
+(async () => {
+  globalThis.self = globalThis;
+  await import("../vendor/pdf-lib.min.js");
+  const lib = globalThis.PDFLib;
+  const { createSample, exportPdf, transformPoint, inversePoint } =
+    await import("../pdf-core.js");
+  const sample = await createSample();
+  const blank = await createSample(true);
+  const transform = [1, 0, 0, -1, 0, 842];
+  assert.deepEqual(
+    inversePoint(transform, ...transformPoint(transform, 18, 30)),
+    [18, 30],
+  );
+  const basis = { transform, width: 595, height: 842, rotation: 0 };
+  const src = {
+    id: "sample",
+    bytes: sample,
+    values: {
+      full_name: "María Client",
+      approved: true,
+      service: "Consultation",
+    },
+  };
+  const state = {
+    name: "Test",
+    sources: [src, { id: "blank", bytes: blank, values: {} }],
+    pages: [
+      {
+        source: "sample",
+        index: 0,
+        rotation: 90,
+        marks: [
+          {
+            type: "text",
+            text: "Added text",
+            x: 50,
+            y: 150,
+            size: 14,
+            color: "#155d55",
+            basis,
+          },
+          {
+            type: "highlight",
+            x: 50,
+            y: 180,
+            w: 100,
+            h: 15,
+            color: "#f1c84a",
+            basis,
+          },
+          {
+            type: "draw",
+            points: [
+              [50, 210],
+              [75, 220],
+              [100, 205],
+            ],
+            size: 2,
+            color: "#155d55",
+            basis,
+          },
+          {
+            type: "check",
+            x: 60,
+            y: 250,
+            w: 15,
+            h: 15,
+            color: "#155d55",
+            basis,
+          },
+        ],
+      },
+      { source: "blank", index: 0, rotation: 0, marks: [] },
+    ],
+  };
+  const out = await lib.PDFDocument.load(await exportPdf(state));
+  assert.equal(out.getPageCount(), 2);
+  assert.equal(out.getPage(0).getRotation().angle, 90);
+  assert.equal(out.getForm().getFields().length, 0);
+  const extracted = await lib.PDFDocument.load(await exportPdf(state, 1));
+  assert.equal(extracted.getPageCount(), 1);
+  const signed = await lib.PDFDocument.create();
+  const pg = signed.addPage();
+  const field = signed.context.obj({
+    FT: "Sig",
+    T: lib.PDFHexString.fromText("signature"),
+    Kids: [],
+  });
+  const ref = signed.context.register(field);
+  signed.getForm().acroForm.addField(ref);
+  const signedBytes = await signed.save();
+  await assert.rejects(
+    () =>
+      exportPdf({
+        name: "signed",
+        sources: [{ id: "s", bytes: signedBytes, values: {} }],
+        pages: [{ source: "s", index: 0, rotation: 0, marks: [] }],
+      }),
+    /signature/,
+  );
+  const original = await lib.PDFDocument.load(sample);
+  assert.equal(original.getPageCount(), 2);
+  assert(
+    original.getForm().getFields().length > 0,
+    "export does not mutate original form",
+  );
+  fs.writeFileSync(path.join(__dirname, "merged.pdf"), await exportPdf(state));
+  console.log(
+    "PASS: coordinate round-trip, accented form text, flattened export, vector marks, rotation, merge, extraction, signature rejection, original preservation.",
+  );
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

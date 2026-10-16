@@ -1,10 +1,25 @@
 {
   "name": "bluekey-pdf-local",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "type": "module",
   "private": true,
   "scripts": {
     "start": "node server.cjs",
-    "test": "node tests/smoke.cjs"
+    "test": "node tests/run.cjs",
+    "test:browser": "node tests/run.cjs --browser",
+    "test:all": "npm test && npm run test:browser",
+    "check": "node scripts/check.cjs",
+    "format": "prettier --write \"*.js\" \"*.cjs\" \"*.css\" index.html \"tests/*.cjs\" \"scripts/*.cjs\"",
+    "build": "node scripts/build-assets.cjs"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "0.1.100",
+    "@pdf-lib/upng": "1.0.1",
+    "pdf-lib": "1.17.1",
+    "playwright": "1.62.1",
+    "prettier": "3.6.2"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

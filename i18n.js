@@ -365,81 +365,337 @@ Your document. Your device.	Votre document. Votre appareil.
 This sample contains no real client information.	Cet exemple ne contient aucune information client réelle.
 A little room for your notes.	Un espace pour vos notes.
 Try adding text, highlighting, drawing, or inserting an image.	Essayez le texte, le surlignage, le dessin ou les images.
+Backup project	Sauvegarder le projet
+Open project backup	Ouvrir une sauvegarde de projet
+Opening project…	Ouverture du projet…
+Keep your changes safe	Protégez vos modifications
+Your draft could not be saved. The document is still open.	Le brouillon n’a pas pu être enregistré. Le document reste ouvert.
+Keep editing	Continuer la modification
+Retry saving	Réessayer l’enregistrement
+Download project and continue	Télécharger le projet et continuer
+Flatten form fields	Aplatir les champs du formulaire
+The original document structure is preserved when all source pages remain.	La structure du document original est conservée si toutes ses pages sont présentes.
+Merged, reordered or extracted copies may lose bookmarks, attachments and accessibility structure.	Les copies fusionnées, réorganisées ou extraites peuvent perdre des signets, pièces jointes et structures d’accessibilité.
+Draft not saved. Keep the app open or download a project backup.	Brouillon non enregistré. Gardez l’application ouverte ou téléchargez une sauvegarde du projet.
+Previous match	Résultat précédent
+Next match	Résultat suivant
+Offline OCR languages	Langues OCR hors connexion
+Download recognition assets while online. Document editing works offline without OCR.	Téléchargez les données de reconnaissance avec une connexion. La modification des documents fonctionne hors connexion sans OCR.
+English	Anglais
+French	Français
+Spanish	Espagnol
+Download languages	Télécharger les langues
+Downloading…	Téléchargement…
+Selected languages are ready offline.	Les langues sélectionnées sont disponibles hors connexion.
+Choose an OCR language.	Choisissez une langue OCR.
+Download timed out. Try again while online.	Le téléchargement a expiré. Réessayez avec une connexion.
+Update ready — save and reload	Mise à jour disponible — enregistrer et recharger
+Cancel processing	Annuler le traitement
+PDF processing took too long. Try a smaller document.	Le traitement du PDF a expiré. Essayez un document plus petit.
+Processing canceled	Traitement annulé
+Keep this workspace below 80 MB of source PDFs.	Limitez cet espace de travail à 80 Mo de PDF sources.
+PDF reopened; page count, dimensions and rotation checked.	PDF rouvert ; nombre de pages, dimensions et rotation vérifiés.
+Offline setup is unavailable. You can continue online.	La configuration hors connexion est indisponible. Vous pouvez continuer en ligne.
+Export a PDF copy. Choose whether form fields remain interactive. Your editable draft stays here.	Exportez une copie PDF. Choisissez si les champs restent interactifs. Votre brouillon modifiable reste ici.
+Complete single-document exports retain the original structure. Page rearrangement, merge and extraction may lose advanced structures.	L’export d’un document complet conserve sa structure originale. La réorganisation, la fusion et l’extraction peuvent perdre des structures avancées.
+Added text and form values support Latin, Greek and Cyrillic. Missing glyphs and complex scripts require additional support.	Le texte ajouté et les champs prennent en charge les alphabets latin, grec et cyrillique. Les glyphes manquants et les écritures complexes nécessitent une prise en charge supplémentaire.
+Close other BlueKey tabs before updating.	Fermez les autres onglets BlueKey avant la mise à jour.
+Selection	Sélection
+Word	Mot
+Sentence	Phrase
+Paragraph	Paragraphe
+Typeface	Famille de police
+Style	Style
+Original family	Famille originale
+Original style	Style original
+Regular	Normal
+Bold	Gras
+Italic	Italique
+Bold italic	Gras italique
+Text formatting	Mise en forme du texte
+Text typeface	Famille du texte
+Previous text	Texte précédent
+Next text	Texte suivant
+Text alignment	Alignement du texte
+Move X	Déplacer X
+Move Y	Déplacer Y
+Click text and type. Alt + Left / Right selects nearby text. Unapplied typing is saved in your draft.	Cliquez sur le texte et saisissez. Alt + Gauche / Droite sélectionne le texte voisin. Votre saisie non appliquée est sauvegardée dans le brouillon.
+Unapplied text recovered. Apply or Cancel after review.	Saisie non appliquée récupérée. Vérifiez puis appliquez ou annulez.
+Apply or cancel the recovered text before exporting. Your unfinished typing is saved in the draft.	Appliquez ou annulez le texte récupéré avant d’exporter. Votre saisie inachevée est sauvegardée dans le brouillon.
+Apply or cancel unfinished text before undoing committed changes.	Appliquez ou annulez la saisie inachevée avant d’annuler les modifications validées.
+Recognized text	Texte reconnu
+Edit recognized text	Modifier le texte reconnu
+Preview replacement	Aperçu du remplacement
+Extracted text — review before replacing.	Texte extrait — vérifiez avant de remplacer.
+Type directly on the page, then preview a regional replacement. Your original draft is retained.	Saisissez directement sur la page puis prévisualisez le remplacement de la zone. Votre brouillon original est conservé.
+Allow whole-page raster fallback if regional replacement is unsafe	Autoriser la conversion de toute la page en image si le remplacement de la zone est risqué
+Whole-page fallback loses vector, link and accessibility structure on this page. It is not secure redaction.	La conversion de toute la page en image supprime ses structures vectorielles, de liens et d’accessibilité. Ce n’est pas un caviardage sécurisé.
+Replace the selected areas with editable text. Surrounding page objects, links and document structure are retained when the source text can be safely removed. Fonts and backgrounds inside the selected areas may change. Your original draft stays separate.	Remplacez les zones sélectionnées par du texte modifiable. Les objets voisins, les liens et la structure du document sont conservés lorsque le texte source peut être supprimé sans risque. Les polices et les arrière-plans des zones sélectionnées peuvent changer. Votre brouillon original reste séparé.
+Exported text checked. Regional replacement preserves surrounding page objects. Compare Original before creating the editable copy.	Texte exporté vérifié. Le remplacement de la zone conserve les objets voisins. Comparez avec l’original avant de créer la copie modifiable.
+Exported text checked. Whole-page raster fallback was used: unselected content on this page is now pixels. Compare Original before creating the editable copy.	Texte exporté vérifié. La page entière a été convertie en image : le contenu non sélectionné est désormais composé de pixels. Comparez avec l’original avant de créer la copie modifiable.
+Reviewed text loaded. Preview the replacement before creating a copy.	Texte vérifié chargé. Prévisualisez le remplacement avant de créer une copie.
+Pause analysis	Mettre l’analyse en pause
+Resume analysis	Reprendre l’analyse
+Analysis paused	Analyse en pause
+Analysis canceled	Analyse annulée
+Recovered typing needs review	La saisie récupérée doit être vérifiée
+Recovered unfinished text	Saisie inachevée récupérée
+Discard recovered typing	Supprimer la saisie récupérée
+The original text object is no longer directly editable. Copy your saved text before choosing an area to reconstruct.	Le texte original n’est plus directement modifiable. Copiez votre saisie sauvegardée avant de choisir une zone à reconstruire.
+Text requires complex shaping or bidirectional layout and remains read-only.	Ce texte nécessite une mise en forme complexe ou bidirectionnelle et reste en lecture seule.
+This script needs bidirectional or complex text layout, which is not supported for replacement text yet. Keep the original text or use a tool with a shaping engine.	Cette écriture nécessite une mise en forme bidirectionnelle ou complexe non prise en charge pour le remplacement. Conservez l’original ou utilisez un outil doté d’un moteur de mise en forme.
+Imported font style comes from the selected font file. Import the requested style instead.	Le style de la police importée est défini par le fichier choisi. Importez le fichier du style souhaité.
+The selected area cuts through a text run. Expand the area or explicitly enable the whole-page raster fallback.	La zone sélectionnée coupe un bloc de texte. Agrandissez-la ou autorisez explicitement la conversion de toute la page en image.
+Some text cannot be safely located or removed. Enable the whole-page raster fallback after reviewing its limitations.	Certains textes ne peuvent pas être localisés ou supprimés sans risque. Autorisez la conversion de toute la page en image après avoir vérifié ses limites.
+Whole-page fallback loses this page’s vector, link and accessibility structure and can remove interactive forms and document-level features. Your original draft remains available. It is not secure redaction.	La conversion de toute la page en image supprime ses structures vectorielles, de liens et d’accessibilité, et peut supprimer des formulaires interactifs et des fonctions du document. Votre brouillon original reste disponible. Ce n’est pas un caviardage sécurisé.
+Replacement text was not found in the selected area. Review the preview and font.	Le texte de remplacement est introuvable dans la zone sélectionnée. Vérifiez l’aperçu et la police.
+Original text is still extractable in the replaced area. Expand the selection or choose the explicit raster fallback.	Le texte original peut encore être extrait de la zone remplacée. Agrandissez la sélection ou choisissez explicitement la conversion en image.
+This area intersects an interactive form field. Use Fill or export a flattened copy before reconstruction.	Cette zone chevauche un champ interactif. Utilisez Remplir ou exportez une copie aplatie avant de reconstruire.
 `;
-export const messages = Object.fromEntries(catalogue.trim().split('\n').map(row=>row.split('\t').map(value=>value.trim())));
-let language=typeof document==='undefined'?'en':'fr';
-try { if(globalThis.localStorage?.getItem('bluekey-pdf-language')==='en')language='en'; } catch {}
-export const getLanguage=()=>language;
-export const locale=()=>language==='fr'?'fr-FR':'en-GB';
-export function t(text){
- if(typeof text!=='string'||language==='en')return text;
- const trimmed=text.trim(),direct=messages[trimmed];
- if(direct)return text.replace(trimmed,direct);
- for(const [regex,replace]of patterns){if(regex.test(trimmed))return text.replace(trimmed,trimmed.replace(regex,replace));}
- // Known engine warning lists contain several independently translatable sentences.
- if(trimmed.includes('. '))return text.split(/(?<=\.) /).map(s=>messages[s]||s).join(' ');
- return text;
+export const messages = Object.fromEntries(
+  catalogue
+    .trim()
+    .split("\n")
+    .map((row) => row.split("\t").map((value) => value.trim())),
+);
+let language = typeof document === "undefined" ? "en" : "fr";
+try {
+  if (globalThis.localStorage?.getItem("bluekey-pdf-language") === "en")
+    language = "en";
+} catch {}
+export const getLanguage = () => language;
+export const locale = () => (language === "fr" ? "fr-FR" : "en-GB");
+export function t(text) {
+  if (typeof text !== "string" || language === "en") return text;
+  const trimmed = text.trim(),
+    direct = messages[trimmed];
+  if (direct) return text.replace(trimmed, direct);
+  for (const [regex, replace] of patterns) {
+    if (regex.test(trimmed))
+      return text.replace(trimmed, trimmed.replace(regex, replace));
+  }
+  // Known engine warning lists contain several independently translatable sentences.
+  if (trimmed.includes(". "))
+    return text
+      .split(/(?<=\.) /)
+      .map((s) => messages[s] || s)
+      .join(" ");
+  return text;
 }
-const patterns=[
- [/^(Edit PDF|Content is read-only) · (Text|Image): (.*)$/s,(_,action,type,content)=>`${t(action)} · ${t(type)} : ${content}`],
- [/^Make this text editable: (.*)$/s,(_,content)=>`${t('Make this text editable')} : ${content}`],
- [/^BlueKey PDF Editor home$/,()=> 'Accueil de BlueKey PDF Editor'],
- [/^Delete draft (.+)$/s,(_,name)=>`Supprimer le brouillon ${name}`],
- [/^(\d+) pages? · (.+) · Draft$/,(_,n,date)=>`${n} page${n==='1'?'':'s'} · ${date} · Brouillon`],
- [/^Go to page (\d+)$/,(_,n)=>`Aller à la page ${n}`],
- [/^Page (\d+)$/,(_,n)=>`Page ${n}`],
- [/^Delete page (\d+)\?$/,(_,n)=>`Supprimer la page ${n} ?`],
- [/^Selected (signature|text|note|image|draw|underline|highlight|check)$/,(_,type)=>({signature:'Signature sélectionnée',text:'Texte sélectionné',note:'Note sélectionnée',image:'Image sélectionnée',draw:'Dessin sélectionné',underline:'Soulignement sélectionné',highlight:'Surlignage sélectionné',check:'Coche sélectionnée'})[type]],
- [/^(Text|Image) (.*)$/s,(_,type,rest)=>`${type==='Text'?'Texte':'Image'} ${t(rest)}`],
- [/^Font fallback: (.+?)\. (.*)$/s,(_,font,rest)=>`Police de remplacement : ${font}. ${t(rest)}`],
- [/^Original font preserved\. (.*)$/s,(_,rest)=>`Police originale conservée. ${t(rest)}`],
- [/^(\d+) lines? · ([\d.]+) pt\.(.*)$/s,(_,n,size,rest)=>`${n} ligne${n==='1'?'':'s'} · ${size.replace('.',',')} pt.${t(rest)}`],
- [/^(.*) Overlaps (\d+) nearby content area\(s\)\.$/s,(_,rest,n)=>`${t(rest)} Chevauche ${n} zone${n==='1'?'':'s'} de contenu voisine${n==='1'?'':'s'}.`],
- [/^(.*) Wrapped lines can overlap other objects; review the page\.$/s,(_,rest)=>`${t(rest)} Les lignes peuvent chevaucher d’autres objets ; vérifiez la page.`],
- [/^(\d+) direct text edits · (\d+) need reconstruction( · No native text detected)?$/,(_,a,b,scan)=>`${a} textes directement modifiables · ${b} à reconstruire${scan?' · Aucun texte natif détecté':''}`],
- [/^(\d+) editable · (\d+) read-only · (\d+) changed$/,(_,a,b,c)=>`${a} modifiables · ${b} en lecture seule · ${c} modifiés`],
- [/^(\d+) × (\d+) pixels$/,(_,a,b)=>`${a} × ${b} pixels`],
- [/^Area (\d+) · (manual text|extracted text|\d+% confidence)( — check carefully)?( — rotated text will be rebuilt horizontally)?$/,(_,n,source,uncertain,rotated)=>`Zone ${n} · ${source==='manual text'?'texte saisi':source==='extracted text'?'texte extrait':source.replace('% confidence',' % de confiance')}${uncertain?' — à vérifier attentivement':''}${rotated?' — le texte incliné sera reconstruit horizontalement':''}`],
- [/^Recognized line (\d+)$/,(_,n)=>`Ligne reconnue ${n}`],
- [/^(\d+) text areas extracted without OCR\. Review them, or use recognition if the extracted text is incorrect\.$/,(_,n)=>`${n} zones de texte extraites sans OCR. Vérifiez-les ou utilisez la reconnaissance si le texte est incorrect.`],
- [/^(\d+) text areas found( after straightening [-\d.]+°)?\. Review every line, especially uncertain words\.$/,(_,n,angle)=>`${n} zones de texte trouvées${angle?angle.replace(' after straightening ',' après redressement de ').replace('.',','):''}. Vérifiez chaque ligne, surtout les mots incertains.`],
- [/^(Font could not load|Recognition failed|Preview could not render|Cannot build this text|Could not prepare this page): (.*)$/s,(_,prefix,detail)=>`${({'Font could not load':'Impossible de charger la police','Recognition failed':'Échec de la reconnaissance','Preview could not render':'Impossible d’afficher l’aperçu','Cannot build this text':'Impossible de reconstruire ce texte','Could not prepare this page':'Impossible de préparer cette page'})[prefix]} : ${t(detail)}`],
- [/^(loading tesseract core|initializing tesseract|loading language traineddata|initializing api|recognizing text) (\d+)%$/,(_,status,n)=>`${t(status)} ${n} %`],
- [/^The font (.+) cannot encode: (.+)\. Choose a font containing these characters\.$/s,(_,font,chars)=>`La police ${font} ne couvre pas : ${chars}. Choisissez une police contenant ces caractères.`],
- [/^Export verification failed on page (\d+): replacement text could not be read back\. Your draft is still available\.$/,(_,n)=>`Échec de la vérification de l’export à la page ${n} : le texte de remplacement n’a pas pu être relu. Votre brouillon reste disponible.`],
- [/^Reopened PDF and verified (\d+) text edits\. Review the appearance before sharing\.$/,(_,n)=>`PDF rouvert et ${n} modifications de texte vérifiées. Vérifiez l’apparence avant de partager.`],
- [/^Download started\. (.+) Your draft is saved here\.$/s,(_,check)=>`Téléchargement lancé. ${t(check)} Votre brouillon est enregistré ici.`],
- [/^ - page (\d+)$/,(_,n)=>` - page ${n}`],
+const patterns = [
+  [
+    /^(\d+) \/ (\d+) pages analyzed · (text|scan|mixed|searchable-scan|empty|unsupported|analyzing)( · Recognizing text…)?( · Paused)?$/,
+    (_, count, total, kind, processing, paused) =>
+      `${count} / ${total} pages analysées · ${{ text: "texte", scan: "page numérisée", mixed: "page mixte", "searchable-scan": "page numérisée avec couche texte", empty: "page vide", unsupported: "non pris en charge", analyzing: "analyse en cours" }[kind]}${processing ? " · Reconnaissance du texte…" : ""}${paused ? " · En pause" : ""}`,
+  ],
+  [
+    /^(\d+)% OCR confidence — review before replacing\.$/,
+    (_, confidence) =>
+      `${confidence} % de confiance OCR — vérifiez avant de remplacer.`,
+  ],
+
+  [
+    /^(Edit PDF|Content is read-only) · (Text|Image): (.*)$/s,
+    (_, action, type, content) => `${t(action)} · ${t(type)} : ${content}`,
+  ],
+  [
+    /^Make this text editable: (.*)$/s,
+    (_, content) => `${t("Make this text editable")} : ${content}`,
+  ],
+  [/^BlueKey PDF Editor home$/, () => "Accueil de BlueKey PDF Editor"],
+  [/^Delete draft (.+)$/s, (_, name) => `Supprimer le brouillon ${name}`],
+  [
+    /^(\d+) pages? · (.+) · Draft$/,
+    (_, n, date) => `${n} page${n === "1" ? "" : "s"} · ${date} · Brouillon`,
+  ],
+  [/^Go to page (\d+)$/, (_, n) => `Aller à la page ${n}`],
+  [/^Page (\d+)$/, (_, n) => `Page ${n}`],
+  [/^Delete page (\d+)\?$/, (_, n) => `Supprimer la page ${n} ?`],
+  [
+    /^Selected (signature|text|note|image|draw|underline|highlight|check)$/,
+    (_, type) =>
+      ({
+        signature: "Signature sélectionnée",
+        text: "Texte sélectionné",
+        note: "Note sélectionnée",
+        image: "Image sélectionnée",
+        draw: "Dessin sélectionné",
+        underline: "Soulignement sélectionné",
+        highlight: "Surlignage sélectionné",
+        check: "Coche sélectionnée",
+      })[type],
+  ],
+  [
+    /^(Text|Image) (.*)$/s,
+    (_, type, rest) => `${type === "Text" ? "Texte" : "Image"} ${t(rest)}`,
+  ],
+  [
+    /^Font fallback: (.+?)\. (.*)$/s,
+    (_, font, rest) => `Police de remplacement : ${font}. ${t(rest)}`,
+  ],
+  [
+    /^Original font preserved\. (.*)$/s,
+    (_, rest) => `Police originale conservée. ${t(rest)}`,
+  ],
+  [
+    /^(\d+) lines? · ([\d.]+) pt\.(.*)$/s,
+    (_, n, size, rest) =>
+      `${n} ligne${n === "1" ? "" : "s"} · ${size.replace(".", ",")} pt.${t(rest)}`,
+  ],
+  [
+    /^(.*) Overlaps (\d+) nearby content area\(s\)\.$/s,
+    (_, rest, n) =>
+      `${t(rest)} Chevauche ${n} zone${n === "1" ? "" : "s"} de contenu voisine${n === "1" ? "" : "s"}.`,
+  ],
+  [
+    /^(.*) Wrapped lines can overlap other objects; review the page\.$/s,
+    (_, rest) =>
+      `${t(rest)} Les lignes peuvent chevaucher d’autres objets ; vérifiez la page.`,
+  ],
+  [
+    /^(\d+) direct text edits · (\d+) need reconstruction( · No native text detected)?$/,
+    (_, a, b, scan) =>
+      `${a} textes directement modifiables · ${b} à reconstruire${scan ? " · Aucun texte natif détecté" : ""}`,
+  ],
+  [
+    /^(\d+) editable · (\d+) read-only · (\d+) changed$/,
+    (_, a, b, c) => `${a} modifiables · ${b} en lecture seule · ${c} modifiés`,
+  ],
+  [/^(\d+) × (\d+) pixels$/, (_, a, b) => `${a} × ${b} pixels`],
+  [
+    /^Area (\d+) · (manual text|extracted text|\d+% confidence)( — check carefully)?( — rotated text will be rebuilt horizontally)?$/,
+    (_, n, source, uncertain, rotated) =>
+      `Zone ${n} · ${source === "manual text" ? "texte saisi" : source === "extracted text" ? "texte extrait" : source.replace("% confidence", " % de confiance")}${uncertain ? " — à vérifier attentivement" : ""}${rotated ? " — le texte incliné sera reconstruit horizontalement" : ""}`,
+  ],
+  [/^Recognized line (\d+)$/, (_, n) => `Ligne reconnue ${n}`],
+  [
+    /^(\d+) text areas extracted without OCR\. Review them, or use recognition if the extracted text is incorrect\.$/,
+    (_, n) =>
+      `${n} zones de texte extraites sans OCR. Vérifiez-les ou utilisez la reconnaissance si le texte est incorrect.`,
+  ],
+  [
+    /^(\d+) text areas found( after straightening [-\d.]+°)?\. Review every line, especially uncertain words\.$/,
+    (_, n, angle) =>
+      `${n} zones de texte trouvées${angle ? angle.replace(" after straightening ", " après redressement de ").replace(".", ",") : ""}. Vérifiez chaque ligne, surtout les mots incertains.`,
+  ],
+  [
+    /^(Font could not load|Recognition failed|Preview could not render|Cannot build this text|Could not prepare this page): (.*)$/s,
+    (_, prefix, detail) =>
+      `${{ "Font could not load": "Impossible de charger la police", "Recognition failed": "Échec de la reconnaissance", "Preview could not render": "Impossible d’afficher l’aperçu", "Cannot build this text": "Impossible de reconstruire ce texte", "Could not prepare this page": "Impossible de préparer cette page" }[prefix]} : ${t(detail)}`,
+  ],
+  [
+    /^(loading tesseract core|initializing tesseract|loading language traineddata|initializing api|recognizing text) (\d+)%$/,
+    (_, status, n) => `${t(status)} ${n} %`,
+  ],
+  [
+    /^The font (.+) cannot encode: (.+)\. Choose a font containing these characters\.$/s,
+    (_, font, chars) =>
+      `La police ${font} ne couvre pas : ${chars}. Choisissez une police contenant ces caractères.`,
+  ],
+  [
+    /^Export verification failed on page (\d+): replacement text could not be read back\. Your draft is still available\.$/,
+    (_, n) =>
+      `Échec de la vérification de l’export à la page ${n} : le texte de remplacement n’a pas pu être relu. Votre brouillon reste disponible.`,
+  ],
+  [
+    /^Reopened PDF and verified (\d+) text edits\. Review the appearance before sharing\.$/,
+    (_, n) =>
+      `PDF rouvert et ${n} modifications de texte vérifiées. Vérifiez l’apparence avant de partager.`,
+  ],
+  [
+    /^Download started\. (.+) Your draft is saved here\.$/s,
+    (_, check) =>
+      `Téléchargement lancé. ${t(check)} Votre brouillon est enregistré ici.`,
+  ],
+  [/^ - page (\d+)$/, (_, n) => ` - page ${n}`],
 ];
 
 // Store the English source per node so switching never reverses user data or
 // rebuilds editors. Observe only UI mutations; ignore PDF text and input values.
-const sources=new WeakMap(),attrs=new WeakMap();let observer;
-const protectedSelector='script,style,[data-no-i18n],#fields,.original-value,.doc-info strong,#object-picker option:not([value=""]),#text-block-picker option:not([value=""]),.search-excerpt';
-function translateNode(node){
- if(node.nodeType===3){if(!node.parentElement||node.parentElement.closest(protectedSelector+',textarea,.content-hit'))return;
-  const prev=sources.get(node),value=node.nodeValue,source=prev&&value===prev.output?prev.source:value,output=t(source);
-  sources.set(node,{source,output});if(value!==output)node.nodeValue=output;return;
- }
- if(node.nodeType!==1&&node.nodeType!==9)return;
- if(node.nodeType===1){if(node.matches(protectedSelector))return;
-  for(const key of ['aria-label','title','placeholder','alt']){if(!node.hasAttribute(key)||node.closest('[data-no-i18n],#fields')||key==='title'&&node.matches('.content-hit[data-pdf-title="true"]'))continue;
-   const saved=attrs.get(node)||{},prev=saved[key],value=node.getAttribute(key),source=prev&&value===prev.output?prev.source:value,output=t(source);saved[key]={source,output};attrs.set(node,saved);if(value!==output)node.setAttribute(key,output);
+const sources = new WeakMap(),
+  attrs = new WeakMap();
+let observer;
+const protectedSelector =
+  'script,style,[data-no-i18n],#fields,.original-value,.doc-info strong,#object-picker option:not([value=""]),#text-block-picker option:not([value=""]),.search-excerpt';
+function translateNode(node) {
+  if (node.nodeType === 3) {
+    if (
+      !node.parentElement ||
+      node.parentElement.closest(protectedSelector + ",textarea,.content-hit")
+    )
+      return;
+    const prev = sources.get(node),
+      value = node.nodeValue,
+      source = prev && value === prev.output ? prev.source : value,
+      output = t(source);
+    sources.set(node, { source, output });
+    if (value !== output) node.nodeValue = output;
+    return;
   }
- }
- for(const child of node.childNodes)translateNode(child);
+  if (node.nodeType !== 1 && node.nodeType !== 9) return;
+  if (node.nodeType === 1) {
+    if (node.matches(protectedSelector)) return;
+    for (const key of ["aria-label", "title", "placeholder", "alt"]) {
+      if (
+        !node.hasAttribute(key) ||
+        node.closest("[data-no-i18n],#fields") ||
+        (key === "title" && node.matches('.content-hit[data-pdf-title="true"]'))
+      )
+        continue;
+      const saved = attrs.get(node) || {},
+        prev = saved[key],
+        value = node.getAttribute(key),
+        source = prev && value === prev.output ? prev.source : value,
+        output = t(source);
+      saved[key] = { source, output };
+      attrs.set(node, saved);
+      if (value !== output) node.setAttribute(key, output);
+    }
+  }
+  for (const child of node.childNodes) translateNode(child);
 }
-const observerOptions={subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['title','aria-label','placeholder','alt']};
-function translateTree(root){observer?.disconnect();translateNode(root);observer?.observe(document.body,observerOptions);}
-export function setLanguage(next){
- language=next==='en'?'en':'fr';try{localStorage.setItem('bluekey-pdf-language',language);}catch{}
- if(typeof document==='undefined')return;
- document.documentElement.lang=language;translateTree(document.body);
- for(const button of document.querySelectorAll('[data-lang]'))button.setAttribute('aria-pressed',String(button.dataset.lang===language));
- document.dispatchEvent(new CustomEvent('languagechange',{detail:language}));
+const observerOptions = {
+  subtree: true,
+  childList: true,
+  characterData: true,
+  attributes: true,
+  attributeFilter: ["title", "aria-label", "placeholder", "alt"],
+};
+function translateTree(root) {
+  observer?.disconnect();
+  translateNode(root);
+  observer?.observe(document.body, observerOptions);
 }
-export function initI18n(){
- observer=new MutationObserver(records=>{const roots=new Set();for(const record of records){if(record.type==='childList'){for(const node of record.addedNodes)roots.add(node);}else roots.add(record.target);}observer.disconnect();for(const root of roots)if(root.isConnected)translateNode(root);observer.observe(document.body,observerOptions);});
- for(const button of document.querySelectorAll('[data-lang]'))button.onclick=()=>setLanguage(button.dataset.lang);
- setLanguage(language);
+export function setLanguage(next) {
+  language = next === "en" ? "en" : "fr";
+  try {
+    localStorage.setItem("bluekey-pdf-language", language);
+  } catch {}
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = language;
+  translateTree(document.body);
+  for (const button of document.querySelectorAll("[data-lang]"))
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.lang === language),
+    );
+  document.dispatchEvent(
+    new CustomEvent("languagechange", { detail: language }),
+  );
+}
+export function initI18n() {
+  observer = new MutationObserver((records) => {
+    const roots = new Set();
+    for (const record of records) {
+      if (record.type === "childList") {
+        for (const node of record.addedNodes) roots.add(node);
+      } else roots.add(record.target);
+    }
+    observer.disconnect();
+    for (const root of roots) if (root.isConnected) translateNode(root);
+    observer.observe(document.body, observerOptions);
+  });
+  for (const button of document.querySelectorAll("[data-lang]"))
+    button.onclick = () => setLanguage(button.dataset.lang);
+  setLanguage(language);
 }

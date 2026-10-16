@@ -10,6 +10,60 @@ GitHub Pages publishes the static application from `main` at the repository root
 
 Drafts are stored in the browser for each website origin. Moving from localhost or bluekeyapp.com to the standalone GitHub Pages address does not transfer drafts automatically. Export PDFs at the original location and reopen them in the new app. No client files are stored in this repository.
 
+## Text editing improvements (0.5.0)
+
+The app analyzes the current page first, then works through the remaining pages in the background. The status bar distinguishes native text, scans, mixed pages, searchable scans and empty pages. Pause/resume controls stop background work without canceling Apply or Export. Image regions on mixed pages and pages containing outlined/vector text can use local OCR. Existing OCR layers are reused instead of generating duplicate text outlines. Automatic OCR uses the current interface language (French or English); the reconstruction dialog also offers Spanish and combined models. Download the relevant language assets while online before relying on offline recognition.
+
+**Native editing:** non-form documents open in Edit PDF. Choose Word, Sentence or Paragraph, click text, and type; word/sentence mode selects the corresponding span in its text run. Compatible neighboring runs can be edited as a paragraph, including rotated text. Mixed formatting stays in separate runs. Alt + Left/Right navigates text objects. The compact toolbar exposes typeface, bold/italic, size, color, alignment and Apply/Cancel. The side panel also controls width, position, fitting and line spacing. Original fonts are reused where possible; imported fonts take their style from the actual font file.
+
+**Unfinished typing:** native and recognized-text buffers are saved in the browser draft and portable project backup, separately from committed PDF edits. They survive zoom, rotation, page changes and reload. Apply or Cancel is required before exporting a PDF or undoing committed edits. A failed Apply keeps the buffer. If an old text object can no longer be matched, its saved typing remains available for copying or explicit discard.
+
+**Scans and difficult text:** click an OCR/extracted/read-only text outline and type directly on the page, then choose Preview replacement. The established review dialog provides confidence feedback, font/background controls and an actual exported-PDF preview. Regional replacement removes safely located original text operators and creates selectable text while preserving surrounding vector objects, links, attachments, metadata, page geometry and unrelated interactive forms. This is a separate editable copy; the original draft remains available. Selections cutting through text runs or interactive fields are rejected rather than silently deleting adjacent content.
+
+If regional replacement cannot safely locate/remove the source text, it stops with an explanation. Whole-page raster fallback is **opt-in**, requires a new preview, and loses advanced structure. Background details inside erased regions and replacement font appearance can change even with regional replacement. Removal is not secure redaction: unused resources and covered image pixels can remain in the file.
+
+**Unicode boundary:** replacement text is normalized to NFC; wrapping keeps grapheme clusters intact and supports scripts such as CJK when a suitable original or imported font covers the characters. General Arabic/Hebrew/Indic/Thai shaping and bidi layout are not implemented. Such native text stays read-only and replacement attempts explain the limitation. Glyph coverage is not presented as proof of correct shaping. OCR models cover printed French, English and Spanish; handwriting, arbitrary OCR languages and automatic table reflow are not promised.
+
+Analysis uses a separate worker, one OCR task at a time, a 2200 px automatic raster, eight detailed page analyses and sixteen OCR result pages. The active page is retained; evicted results can be recognized again. Regional PDF generation runs in the processing worker with cancellation/time limits. Explicit full-page raster fallback still uses the capped canvas workflow. No document processing is uploaded to a service.
+
+Validation adds `tests/text-experience.cjs` and `tests/text-experience-ui.cjs`: font/color/position changes with unchanged neighbors, rotated grouping, grapheme wrapping, existing OCR layers, regional replacement on clipped text at 0/90 degrees with CropBox/UserUnit, retained links/attachments/forms, independent pixel comparisons, word/paragraph selection, pause/resume, direct OCR typing, recovered caret/buffers, portable projects and exported text. Broader client-document and physical-device validation remain necessary.
+
+## Reliability improvements (0.4.0)
+
+- A failed draft save keeps the current document open. Retry, export a PDF, or download a portable project before leaving. Export reports the actual save result.
+- **Backup project** downloads a `.bluekey.json` file with source PDFs, form values, committed edits, annotations and imported fonts. **Open project backup** restores it in another browser or origin. It contains document data; store it as carefully as the PDF. Unapplied native and recognized-text buffers are included from version 0.5.0.
+- For one complete PDF in its original page order, export edits the loaded document instead of copying its pages. This retains document-level metadata, attachment and outline trees. The export dialog offers **Flatten form fields**; uncheck it to retain interactive forms. Merge, extraction, deletion and reordering still rebuild a PDF and can lose advanced structures. Preservation is covered by fixtures, not a certification of all PDF structures.
+- Export checking verifies page dimensions/rotation, text occurrences at expected transforms, replaced-content removal, image stream fingerprints, and added text/image positions. It still does not certify arbitrary vector content, accessibility, signatures or every visual detail.
+- Added text and form appearances use managed Unicode fonts when required. Missing glyphs and unsupported complex scripts produce an error. Content parsing and PDF generation run in a worker with cancellation and time limits. Streams and tokens have processing limits.
+- Library listings read a separate metadata store. Existing drafts migrate automatically. Closing documents releases PDF workers, previews, images and thumbnails. Thumbnails are generated near the active page, including pages beyond 30.
+- Select/copy text in Select mode. Search highlights matching text runs and offers previous/next occurrence navigation. OCR is still required for image-only pages. Search covers native/edited page text, not unexported form values or added annotation text.
+- The app shell is cached independently of OCR. Use **Offline OCR languages** while online to download English, French or Spanish assets. Assets use a cache-first release. Updates wait for **Update ready — save and reload**; close other BlueKey tabs first. Failed saves prevent reload unless a project backup has been downloaded.
+
+### Development and checks
+
+Use Node 24 or later:
+
+```sh
+npm ci
+npx playwright install chromium
+npm start
+```
+
+In another terminal, or with no server running for the self-starting browser runner:
+
+```sh
+npm run check
+npm test
+npm run test:browser
+npm run build
+```
+
+`npm test` runs all engine, reconstruction, localization, deployment and reliability suites and generates required synthetic fixtures. Browser tests start and stop their own local server. To use an installed Chrome, set `BROWSER_CHANNEL=chrome`; otherwise they use Playwright Chromium. An individual browser suite can be run with `npm run test:browser -- --suite=reliability-ui`. Tests use declared pinned dependencies and the lockfile, without Codex-specific paths.
+
+Run `npm run format` before `npm run build`. The build regenerates the offline asset list and a content-based service-worker release ID; commit these generated changes before publishing the static site. GitHub Actions runs syntax, Node and browser checks, including OCR, failed-storage recovery, project restoration, legacy-draft migration, mobile sizing and a PDF pixel comparison. No production deployment is performed by the checks workflow.
+
+The compatibility cases and remaining corpus gaps are described in [tests/COMPATIBILITY.md](tests/COMPATIBILITY.md).
+
 ## Try the new editor
 
 On the home screen choose **Try the editing playground**. The four-page example includes ordinary text, two uses of one image, nested objects, an embedded font, and a scanned page.
@@ -20,7 +74,7 @@ On the home screen choose **Try the editing playground**. The four-page example 
 4. A font notice tells you whether the original font is reused or a matching standard font is substituted. Spanish accents and other WinAnsi characters are supported. Embedded fonts with usable ToUnicode mappings can reuse their existing glyphs, including mapped Unicode characters; missing glyphs use a standard-font fallback where possible. Unsupported replacement characters produce an error rather than silently becoming blank glyphs.
 5. Select an image. Drag to move, use the corner handle to resize, or enter X/Y offsets, scales and rotation. Replacement preserves proportions using **fit** or **crop to fill**. Apply commits the outline/controls preview. Remove and Reset this object are available.
 6. Switch between **Original** and **Edited** to compare the page. Reset a single object or all page content edits independently of added annotations.
-7. Undo/redo and autosaved drafts include committed content edits. Unapplied typing is not a saved edit. Export a PDF and reopen it to inspect the final result.
+7. Undo/redo and autosaved drafts include committed content edits. Unapplied typing is recovered separately in the draft and must be applied or canceled before PDF export. Export a PDF and reopen it to inspect the final result.
 
 ## Text editing upgrades (0.3.0)
 
@@ -40,9 +94,9 @@ In Edit PDF choose **Make an area editable** and drag a rectangle, or select a r
 2. For scans, recognize the selected area using local English, Spanish, or combined language models. Optional contrast cleanup and small-angle deskew improve recognition input only; bounding boxes are mapped back to the untouched source pixels. Confidence below 80 percent is highlighted for review. This is not handwriting or table-structure recognition.
 3. Review/correct each text area, uncheck areas to retain as image pixels, or choose **Type text manually**. Manual entry replaces the entire selected rectangle and unchecks earlier extracted areas to prevent duplicate text. Choose the fill and text colors, and optionally import a font.
 4. **Preview editable copy** generates a real PDF, reads back the reviewed text, and renders the exported page. Compare Original/Reconstructed preview. Any subsequent text/font/color change requires a new preview.
-5. **Create editable copy** saves the original draft and opens a separate document containing all current pages. The selected page is reconstructed as a raster background with new editable text; its unselected content stays as pixels. Other pages are copied from the current export. Native editing is then available for the reconstructed text.
+5. **Create editable copy** saves the original draft and opens a separate document containing all current pages. Regional replacement preserves the selected page’s surrounding native objects when safe. Whole-page raster reconstruction is available only through its explicit fallback checkbox. Other pages remain in the current export. Native editing is then available for the reconstructed text.
 
-Reconstruction is lossy: the selected page loses its original vector/text structure outside the rebuilt areas; color, fonts, spacing, links, accessibility and background graphics behind erased text can change. It is not secure redaction or a guarantee that every uploaded document will retain its original appearance. The current export's existing metadata/form-flattening limitations still apply. Encrypted, corrupt, signed and XFA documents retain their import restrictions.
+Whole-page raster reconstruction is lossy: the selected page loses its original vector/text structure outside the rebuilt areas; color, fonts, spacing, links, accessibility and background graphics behind erased text can change. It is not secure redaction or a guarantee that every uploaded document will retain its original appearance. Complete single-document regional copies retain unrelated interactive forms and document structures. Merged/reordered workspaces and explicit raster fallback retain the current export’s metadata/form-flattening limitations. Encrypted, corrupt, signed and XFA documents retain their import restrictions.
 
 The page raster is capped at 3000 pixels on its longest side. Processing remains on this device with bundled Tesseract and font assets. Recognition can be canceled. Review representative client documents before relying on this for production.
 
@@ -50,9 +104,9 @@ The page raster is capped at 3000 pixels on its longest side. Processing remains
 
 PDF viewing, form filling, typed/drawn visible signatures, added text/images, highlights, drawing, notes, page rotation/reordering/deletion, merge, extraction, search, export and browser file sharing remain available. Certificate signatures, encrypted PDFs and XFA forms are rejected. Visible signatures do not provide identity verification or a certificate audit trail.
 
-Drafts are stored in IndexedDB for this browser and origin. Clearing site data removes them. Saving is debounced; an abrupt shutdown before the write completes can lose the latest change. Export important documents. The service worker caches app code, PDF resources, examples and OCR assets after successful installation; offline operation was tested. There is no cloud sync or account.
+Drafts are stored in IndexedDB for this browser and origin. Clearing site data removes them. Native and recognized-text typing buffers are saved separately until applied or canceled. Saving is debounced; an abrupt shutdown before the write completes can lose the latest change. Export important documents. The service worker caches app code, PDF resources and examples after successful installation; OCR assets are downloaded separately through Offline OCR languages; offline operation was tested. There is no cloud sync or account.
 
-40 MB per PDF, 200 pages per workspace and 8 MB per replacement/added image. Large or complex documents can still stress browser memory. OCR works on one page at a time and caps the raster's longest side at 3000 pixels.
+40 MB per PDF, 80 MB of source PDFs per workspace, 200 pages per workspace and 8 MB per replacement/added image. Large or complex documents can still stress browser memory. OCR works on one page at a time and caps the raster's longest side at 3000 pixels.
 
 ## Engine architecture
 
@@ -78,7 +132,7 @@ Supported cases include standard Type1 text, WinAnsi simple fonts with valid wid
 
 Clipped/stroked/invisible text, certain graphics-state fonts, Type3/vertical/custom composite encodings, inherited CMaps, unmapped glyphs, inline-image streams and malformed/oversized maps remain read-only. The object model is not full word-processor paragraph layout. General complex-script shaping, arbitrary vector editing and exact visual font matching are not guaranteed. Nested Form bounding boxes can clip longer replacements. Removal is not secure redaction; unused resources can remain in the output.
 
-Export flattens form fields and draws added marks into a new PDF. Your app draft remains editable. Document-level bookmarks, attachments, metadata and other advanced structures may not carry over. Always keep originals. Thumbnails do not include every added annotation.
+Export flattens form fields by default and draws added marks into the PDF. Complete single-document exports can retain interactive fields and document-level structure. Your app draft remains editable. When pages are merged, reordered, deleted or extracted, document-level bookmarks, attachments, metadata and other advanced structures may not carry over. Always keep originals. Thumbnails do not include every added annotation.
 
 ## Validation
 
@@ -91,13 +145,13 @@ Run from this folder (Node regression tests):
 - `node tests/reconstruction.cjs` — separate multipage reconstruction, selected-region geometry, scan cleanup/deskew, font coverage.
 - With the server running: `npm test`, `node tests/advanced-ui.cjs`, `node tests/ocr-ui.cjs`, and `node tests/offline-ocr.cjs`.
 
-Browser tests use bundled Playwright/Chrome; `tests/smoke.cjs` accepts `CODEX_NODE_MODULES` for a different module location. The others use the bundled Codex runtime. The OCR UI test creates a synthetic scan used by the offline test. Screenshots and fixture PDFs are in `tests/`. `tests/make-demo.cjs` regenerates the playground from test fixtures. Tests cover synthetic documents; representative client PDFs are still needed for broader compatibility confidence.
+Browser tests use the pinned local Playwright dependency. `tests/fixtures.cjs` generates the embedded-font and scanned-page fixtures independently of test order. Screenshots and fixture PDFs are in `tests/`. `tests/make-demo.cjs` regenerates the playground from test fixtures. Tests cover synthetic documents; representative client PDFs are still needed for broader compatibility confidence.
 
 ## Licenses
 
 PDF.js 5.6.205: Apache-2.0; pdf-lib 1.17.1: MIT; Lucide: ISC. Their notices and PDF.js font/WASM notices are in `vendor/`. Tesseract.js 7.0.0, its core and English/Spanish tessdata_fast models are bundled in `vendor/ocr/` with notices. Models were obtained from the official tesseract-ocr/tessdata_fast repository. The example's embedded Inter subset is under SIL OFL, with its notice in `examples/embedded-font-LICENSE.txt` and `tests/embedded-font-LICENSE.txt`. No ArtCraft branding is included.
 
-Manual verification steps and results are in `tests/MANUAL-TEXT-TESTS.md`. Browser automation entrypoints were updated for the preview step; this upgrade was verified through the in-app browser rather than rerunning those Playwright entrypoints.
+Manual verification steps and results are in `tests/MANUAL-TEXT-TESTS.md`. Browser automation entrypoints were updated for the preview step; the 0.4.0 automated regression suite reruns those Playwright entrypoints.
 
 Font support adds @pdf-lib/fontkit 1.1.1 (MIT); upstream package metadata and notices are in `vendor/fontkit/`. Encoding and glyph-name tables are from PDF.js 5.6.205 (Apache-2.0), with source headers retained. Bundled Liberation Sans uses the existing `vendor/standard_fonts/LICENSE_LIBERATION` notice.
 

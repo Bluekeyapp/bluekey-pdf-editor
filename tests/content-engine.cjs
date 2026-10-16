@@ -1,30 +1,98 @@
-const assert=require('node:assert/strict');
-(async()=>{
- globalThis.self=globalThis;await import('../vendor/pdf-lib.min.js');
- const {PDFDocument,StandardFonts,PDFName,decodePDFRawStream}=PDFLib;
- const {inspectContent,previewContent,tokenize}=await import('../content-engine.js');
- const {createSample,exportPdf}=await import('../pdf-core.js');
- const original=await createSample(),scan=await inspectContent(original,0),title=scan.items.find(i=>i.text==="Let's make it official.");assert(title);
- const edits={[title.id]:{type:'text',text:'Client agreement'}};
- const updated=await previewContent(original,0,edits),after=await inspectContent(updated,0);
- assert(after.items.some(i=>i.text==='Client agreement'));assert(!after.items.some(i=>i.text===title.text));
- assert((await inspectContent(original,0)).items.some(i=>i.text===title.text));
- await assert.rejects(()=>previewContent(original,0,{[title.id]:{type:'text',text:'中文'}}),/cannot encode/);
- await assert.rejects(()=>previewContent(original,0,{'invalid':{type:'text',text:'x'}}),/no longer/);
- const state={name:'Engine test',sources:[{id:'s',bytes:original,values:{full_name:'Alice'}}],pages:[{source:'s',index:0,rotation:0,marks:[],contentEdits:edits}]};
- assert((await inspectContent(await exportPdf(state),0)).items.some(i=>i.text==='Client agreement'));
- const literal=tokenize('(one \\(two\\) \\101) Tj % comment\n <4142> Tj');assert.equal(literal[0].value,'one (two) A');assert.equal(literal[2].value,'AB');
- const doc=await PDFDocument.create(),p=doc.addPage(),font=await doc.embedFont(StandardFonts.Helvetica);
- p.drawText('Original',{x:20,y:200,font});
- const png='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=';
- const im=await doc.embedPng(png);p.drawImage(im,{x:20,y:20,width:50,height:50});p.drawImage(im,{x:100,y:20,width:50,height:50});
- const data=await doc.save(),images=(await inspectContent(data,0)).items.filter(v=>v.type==='image');assert.equal(images.length,2);
- const replaced=await previewContent(data,0,{[images[0].id]:{type:'image',data:png}}),rs=(await inspectContent(replaced,0)).items.filter(v=>v.type==='image');assert.notEqual(rs[0].resource,rs[1].resource,'one occurrence only');
- const removed=await previewContent(data,0,{[images[0].id]:{type:'image',remove:true}});assert.equal((await inspectContent(removed,0)).items.filter(v=>v.type==='image').length,1);
- // Embedded/custom font widths must fail closed.
- const custom=await PDFDocument.load(data),fp=custom.getPage(0),fonts=fp.node.Resources().lookup(PDFName.of('Font'));
- for(const key of fonts.keys())fonts.lookup(key).set(PDFName.of('Widths'),custom.context.obj([10]));
- assert.equal((await inspectContent(await custom.save(),0)).items.filter(v=>v.type==='text'&&v.editable).length,0);
- require('node:fs').writeFileSync('tests/content-fixture.pdf',data);
- console.log('PASS: real stream rewrite, original preservation, export, unsupported-character validation, stale edit rejection, literal lexer, image replacement isolation, image removal, custom-font rejection.');
-})().catch(e=>{console.error(e);process.exitCode=1;});
+const assert = require("node:assert/strict");
+(async () => {
+  globalThis.self = globalThis;
+  await import("../vendor/pdf-lib.min.js");
+  const { PDFDocument, StandardFonts, PDFName, decodePDFRawStream } = PDFLib;
+  const { inspectContent, previewContent, tokenize } = await import(
+    "../content-engine.js"
+  );
+  const { createSample, exportPdf } = await import("../pdf-core.js");
+  const original = await createSample(),
+    scan = await inspectContent(original, 0),
+    title = scan.items.find((i) => i.text === "Let's make it official.");
+  assert(title);
+  const edits = { [title.id]: { type: "text", text: "Client agreement" } };
+  const updated = await previewContent(original, 0, edits),
+    after = await inspectContent(updated, 0);
+  assert(after.items.some((i) => i.text === "Client agreement"));
+  assert(!after.items.some((i) => i.text === title.text));
+  assert(
+    (await inspectContent(original, 0)).items.some(
+      (i) => i.text === title.text,
+    ),
+  );
+  await assert.rejects(
+    () =>
+      previewContent(original, 0, {
+        [title.id]: { type: "text", text: "中文" },
+      }),
+    /cannot encode/,
+  );
+  await assert.rejects(
+    () => previewContent(original, 0, { invalid: { type: "text", text: "x" } }),
+    /no longer/,
+  );
+  const state = {
+    name: "Engine test",
+    sources: [{ id: "s", bytes: original, values: { full_name: "Alice" } }],
+    pages: [
+      { source: "s", index: 0, rotation: 0, marks: [], contentEdits: edits },
+    ],
+  };
+  assert(
+    (await inspectContent(await exportPdf(state), 0)).items.some(
+      (i) => i.text === "Client agreement",
+    ),
+  );
+  const literal = tokenize("(one \\(two\\) \\101) Tj % comment\n <4142> Tj");
+  assert.equal(literal[0].value, "one (two) A");
+  assert.equal(literal[2].value, "AB");
+  const doc = await PDFDocument.create(),
+    p = doc.addPage(),
+    font = await doc.embedFont(StandardFonts.Helvetica);
+  p.drawText("Original", { x: 20, y: 200, font });
+  const png =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=";
+  const im = await doc.embedPng(png);
+  p.drawImage(im, { x: 20, y: 20, width: 50, height: 50 });
+  p.drawImage(im, { x: 100, y: 20, width: 50, height: 50 });
+  const data = await doc.save(),
+    images = (await inspectContent(data, 0)).items.filter(
+      (v) => v.type === "image",
+    );
+  assert.equal(images.length, 2);
+  const replaced = await previewContent(data, 0, {
+      [images[0].id]: { type: "image", data: png },
+    }),
+    rs = (await inspectContent(replaced, 0)).items.filter(
+      (v) => v.type === "image",
+    );
+  assert.notEqual(rs[0].resource, rs[1].resource, "one occurrence only");
+  const removed = await previewContent(data, 0, {
+    [images[0].id]: { type: "image", remove: true },
+  });
+  assert.equal(
+    (await inspectContent(removed, 0)).items.filter((v) => v.type === "image")
+      .length,
+    1,
+  );
+  // Embedded/custom font widths must fail closed.
+  const custom = await PDFDocument.load(data),
+    fp = custom.getPage(0),
+    fonts = fp.node.Resources().lookup(PDFName.of("Font"));
+  for (const key of fonts.keys())
+    fonts.lookup(key).set(PDFName.of("Widths"), custom.context.obj([10]));
+  assert.equal(
+    (await inspectContent(await custom.save(), 0)).items.filter(
+      (v) => v.type === "text" && v.editable,
+    ).length,
+    0,
+  );
+  require("node:fs").writeFileSync("tests/content-fixture.pdf", data);
+  console.log(
+    "PASS: real stream rewrite, original preservation, export, unsupported-character validation, stale edit rejection, literal lexer, image replacement isolation, image removal, custom-font rejection.",
+  );
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

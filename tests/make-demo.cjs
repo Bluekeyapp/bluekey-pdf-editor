@@ -1,10 +1,78 @@
-const fs=require('node:fs'),path=require('node:path');
-(async()=>{globalThis.self=globalThis;await import('../vendor/pdf-lib.min.js');const {PDFDocument,StandardFonts,rgb}=PDFLib;const doc=await PDFDocument.create(),p=doc.addPage([595,842]),f=await doc.embedFont(StandardFonts.Helvetica),b=await doc.embedFont(StandardFonts.HelveticaBold);
- p.drawText('Your editing playground',{x:45,y:770,size:26,font:b,color:rgb(.08,.35,.3)});p.drawText('Tap Edit PDF, then select any outlined text or image.',{x:45,y:735,size:12,font:f});
- p.drawText('Client: María García',{x:45,y:680,size:20,font:b});p.drawText('Try a longer name, Shrink to fit, Wrap, and Original / Edited.',{x:45,y:645,size:11,font:f});p.drawText('Invoice total: $250.00',{x:45,y:590,size:20,font:f});
- const upng=require(path.join(require('node:os').homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@pdf-lib/upng')).default,px=new Uint8Array(240*140*4);
- for(let y=0;y<140;y++)for(let x=0;x<240;x++){const at=(y*240+x)*4,accent=Math.abs(x-120)+Math.abs(y-70)<40;px.set(accent?[247,196,97,255]:[26,104,89,255],at);}
- const png=upng.encode([px.buffer],240,140,0),im=await doc.embedPng(png);p.drawImage(im,{x:45,y:360,width:240,height:140});p.drawImage(im,{x:340,y:385,width:120,height:70});
- p.drawText('Two uses of the same image. Edit one without changing the other.',{x:45,y:325,size:11,font:f});p.drawText('Drag to move. Use the corner handle to resize. Apply to commit.',{x:45,y:300,size:11,font:f});p.drawText('More to try on the following pages:',{x:45,y:235,size:15,font:b});p.drawText('2. Nested objects and mixed-font text\n3. An embedded font with Spanish accents\n4. An image-only scan for local OCR',{x:45,y:205,size:12,font:f,lineHeight:22});
- for(const file of ['tests/advanced-fixture.pdf','tests/embedded-fixture.pdf','tests/scan-fixture.pdf']){const src=await PDFDocument.load(fs.readFileSync(file));for(const cp of await doc.copyPages(src,src.getPageIndices()))doc.addPage(cp);}
- doc.setTitle('Blue Key PDF editing playground');fs.writeFileSync('examples/editing-playground.pdf',await doc.save());fs.writeFileSync('examples/replacement-image.png',Buffer.from(png));console.log('Created four-page editing playground.');})().catch(e=>{console.error(e);process.exitCode=1;});
+const fs = require("node:fs"),
+  path = require("node:path");
+(async () => {
+  globalThis.self = globalThis;
+  await import("../vendor/pdf-lib.min.js");
+  const { PDFDocument, StandardFonts, rgb } = PDFLib;
+  const doc = await PDFDocument.create(),
+    p = doc.addPage([595, 842]),
+    f = await doc.embedFont(StandardFonts.Helvetica),
+    b = await doc.embedFont(StandardFonts.HelveticaBold);
+  p.drawText("Your editing playground", {
+    x: 45,
+    y: 770,
+    size: 26,
+    font: b,
+    color: rgb(0.08, 0.35, 0.3),
+  });
+  p.drawText("Tap Edit PDF, then select any outlined text or image.", {
+    x: 45,
+    y: 735,
+    size: 12,
+    font: f,
+  });
+  p.drawText("Client: María García", { x: 45, y: 680, size: 20, font: b });
+  p.drawText("Try a longer name, Shrink to fit, Wrap, and Original / Edited.", {
+    x: 45,
+    y: 645,
+    size: 11,
+    font: f,
+  });
+  p.drawText("Invoice total: $250.00", { x: 45, y: 590, size: 20, font: f });
+  const upng = require("@pdf-lib/upng").default,
+    px = new Uint8Array(240 * 140 * 4);
+  for (let y = 0; y < 140; y++)
+    for (let x = 0; x < 240; x++) {
+      const at = (y * 240 + x) * 4,
+        accent = Math.abs(x - 120) + Math.abs(y - 70) < 40;
+      px.set(accent ? [247, 196, 97, 255] : [26, 104, 89, 255], at);
+    }
+  const png = upng.encode([px.buffer], 240, 140, 0),
+    im = await doc.embedPng(png);
+  p.drawImage(im, { x: 45, y: 360, width: 240, height: 140 });
+  p.drawImage(im, { x: 340, y: 385, width: 120, height: 70 });
+  p.drawText(
+    "Two uses of the same image. Edit one without changing the other.",
+    { x: 45, y: 325, size: 11, font: f },
+  );
+  p.drawText(
+    "Drag to move. Use the corner handle to resize. Apply to commit.",
+    { x: 45, y: 300, size: 11, font: f },
+  );
+  p.drawText("More to try on the following pages:", {
+    x: 45,
+    y: 235,
+    size: 15,
+    font: b,
+  });
+  p.drawText(
+    "2. Nested objects and mixed-font text\n3. An embedded font with Spanish accents\n4. An image-only scan for local OCR",
+    { x: 45, y: 205, size: 12, font: f, lineHeight: 22 },
+  );
+  for (const file of [
+    "tests/advanced-fixture.pdf",
+    "tests/embedded-fixture.pdf",
+    "tests/scan-fixture.pdf",
+  ]) {
+    const src = await PDFDocument.load(fs.readFileSync(file));
+    for (const cp of await doc.copyPages(src, src.getPageIndices()))
+      doc.addPage(cp);
+  }
+  doc.setTitle("Blue Key PDF editing playground");
+  fs.writeFileSync("examples/editing-playground.pdf", await doc.save());
+  fs.writeFileSync("examples/replacement-image.png", Buffer.from(png));
+  console.log("Created four-page editing playground.");
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

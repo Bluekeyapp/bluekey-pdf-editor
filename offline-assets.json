@@ -175,13 +175,19 @@
   "/vendor/cmaps/WP-Symbol.bcmap",
   "/vendor/core_utils.js",
   "/vendor/encodings.js",
+  "/vendor/fontkit/FORK-README.md",
+  "/vendor/fontkit/NOTICE.md",
+  "/vendor/fontkit/UPSTREAM-README.md",
   "/vendor/fontkit/fontkit.umd.min.js",
+  "/vendor/fontkit/package.json",
   "/vendor/glyphlist-source.js",
   "/vendor/lucide-LICENSE",
   "/vendor/lucide.min.js",
+  "/vendor/ocr/FRENCH-DATA-NOTICE.md",
   "/vendor/ocr/core-LICENSE",
   "/vendor/ocr/data-LICENSE",
   "/vendor/ocr/eng.traineddata",
+  "/vendor/ocr/fra.traineddata",
   "/vendor/ocr/spa.traineddata",
   "/vendor/ocr/tesseract-LICENSE",
   "/vendor/ocr/tesseract-core-lstm.wasm",
@@ -224,6 +230,5 @@
   "/vendor/wasm/jbig2.wasm",
   "/vendor/wasm/openjpeg.wasm",
   "/vendor/wasm/openjpeg_nowasm_fallback.js",
-  "/vendor/wasm/qcms_bg.wasm",
-  "/vendor/ocr/fra.traineddata"
+  "/vendor/wasm/qcms_bg.wasm"
 ]
