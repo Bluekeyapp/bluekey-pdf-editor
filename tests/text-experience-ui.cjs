@@ -105,6 +105,25 @@ const { chromium } = require("playwright"),
         .textContent.includes("Paused"),
     );
 
+    await page
+      .getByRole("button", {
+        name: "Edit PDF · Text: First editable sentence.",
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole("button", {
+        name: "Edit PDF · Text: Neighbor remains unchanged.",
+        exact: true,
+      })
+      .click();
+    assert.equal(
+      await page.locator("#inline-content-text").inputValue(),
+      "Neighbor remains unchanged.",
+      "one click can move directly to another clean text object",
+    );
+    await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+    assert.equal(await page.locator("#inline-content-text").count(), 0);
     await page.selectOption("#text-selection", "paragraph");
     await page
       .getByRole("button", {
@@ -142,6 +161,49 @@ const { chromium } = require("playwright"),
       input.setSelectionRange(3, 12);
       input.dispatchEvent(new Event("select"));
     });
+    await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+    assert.equal(await page.locator("#inline-content-text").count(), 0);
+    assert.equal(await page.locator(".inline-formatbar").count(), 0);
+    assert.deepEqual(
+      await page.evaluate(() => {
+        const draft = pdfApp.getState().pages[0].textDraft;
+        return [draft.buffer.text, draft.caret.start, draft.caret.end];
+      }),
+      ["Unfinished changed sentence.", 3, 12],
+      "dismissing preserves typing and caret without applying",
+    );
+    assert.equal(
+      await page.evaluate(
+        () => Object.keys(pdfApp.getState().pages[0].contentEdits || {}).length,
+      ),
+      0,
+      "an outside click never silently commits text",
+    );
+    await page
+      .getByRole("button", {
+        name: "Edit PDF · Text: First editable sentence.",
+        exact: true,
+      })
+      .click();
+    assert.equal(
+      await page.locator("#inline-content-text").inputValue(),
+      "Unfinished changed sentence.",
+    );
+    assert.equal(
+      await page
+        .locator("#inline-content-text")
+        .evaluate((e) => e.selectionStart),
+      3,
+    );
+    await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+    await page.click("#zoom-in");
+    await page.locator("#busy").waitFor({ state: "hidden" });
+    assert.equal(await page.locator("#inline-content-text").count(), 0);
+    await page.click("#resume-inline");
+    assert.equal(
+      await page.locator("#inline-content-text").inputValue(),
+      "Unfinished changed sentence.",
+    );
     await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.waitForFunction(
@@ -251,6 +313,20 @@ const { chromium } = require("playwright"),
     );
     await page.click('[aria-label="Make this text editable: Maria Garcia"]');
     await page.locator("#recovery-inline").fill("María Reviewed");
+    await page.locator("#recovery-inline").evaluate((input) => {
+      input.setSelectionRange(2, 6);
+    });
+    await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+    assert.equal(await page.locator("#recovery-inline").count(), 0);
+    await page.click('[aria-label="Make this text editable: Maria Garcia"]');
+    assert.equal(
+      await page.locator("#recovery-inline").inputValue(),
+      "María Reviewed",
+    );
+    assert.equal(
+      await page.locator("#recovery-inline").evaluate((e) => e.selectionStart),
+      2,
+    );
     await page.locator("#save-menu > summary").click();
     await page.click("#save-draft");
     await page.click("#review-recovered");

@@ -58,6 +58,17 @@ const { chromium } = require("playwright"),
       await page.locator(".advanced-settings").getAttribute("open"),
       null,
     );
+    // Blank paper dismisses the editor, leaving nearby text available to click.
+    await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+    assert.equal(await page.locator("#inline-content-text").count(), 0);
+    assert.equal(await page.locator(".inline-formatbar").count(), 0);
+    await page
+      .getByRole("button", {
+        name: "Edit PDF · Text: This sentence starts in one text run.",
+        exact: true,
+      })
+      .click();
+    assert(await page.locator("#inline-content-text").isVisible());
     await page.locator("#save-menu > summary").click();
     assert(await page.locator("#backup-project").isVisible());
     assert.match(
@@ -94,6 +105,15 @@ const { chromium } = require("playwright"),
       );
       await page.keyboard.press("Escape");
       if (width <= 760) {
+        await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+        assert.equal(await page.locator("#inline-content-text").count(), 0);
+        assert.equal(await page.locator(".inline-formatbar").count(), 0);
+        await page
+          .getByRole("button", {
+            name: "Edit PDF · Text: This sentence starts in one text run.",
+            exact: true,
+          })
+          .click();
         assert.equal(await page.locator("#properties").isVisible(), false);
         await page.click("#inline-more");
         assert(await page.locator("#content-text").isVisible());

@@ -84,7 +84,8 @@ On the home screen choose **Try the editing playground**. The four-page example 
 4. A font notice tells you whether the original font is reused or a matching standard font is substituted. Spanish accents and other WinAnsi characters are supported. Embedded fonts with usable ToUnicode mappings can reuse their existing glyphs, including mapped Unicode characters; missing glyphs use a standard-font fallback where possible. Unsupported replacement characters produce an error rather than silently becoming blank glyphs.
 5. Select an image. Drag to move, use the corner handle to resize, or enter X/Y offsets, scales and rotation. Replacement preserves proportions using **fit** or **crop to fill**. Apply commits the outline/controls preview. Remove and Reset this object are available.
 6. Switch between **Original** and **Edited** to compare the page. Reset a single object or all page content edits independently of added annotations.
-7. Undo/redo and autosaved drafts include committed content edits. Unapplied typing is recovered separately in the draft and must be applied or canceled before PDF export. Export a PDF and reopen it to inspect the final result.
+7. Click a blank area outside the text editor to hide the editing box and floating toolbar. Click the selected text again or use **Resume editing on page** to continue with your typing and caret preserved. Formatting controls remain usable. Apply or cancel unfinished typing before editing another text object.
+8. Undo/redo and autosaved drafts include committed content edits. Unapplied typing is recovered separately in the draft and must be applied or canceled before PDF export. Export a PDF and reopen it to inspect the final result.
 
 ## Text editing upgrades (0.3.0)
 

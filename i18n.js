@@ -1,5 +1,6 @@
 // Local UI translations only. Document text, filenames and field values are never translated.
 const catalogue = `
+Resume editing on page	Reprendre la saisie sur la page
 PDF EDITOR	ÉDITEUR PDF
 WORKSPACE	ESPACE DE TRAVAIL
 Workspace	Espace de travail

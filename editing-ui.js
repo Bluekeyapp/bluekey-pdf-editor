@@ -32,6 +32,7 @@ export function createContentEditor(api) {
     editVersion = "",
     selectionScope = "word",
     pendingFocus = null,
+    inlineDismissed = false,
     recovery = null;
   document.addEventListener("languagechange", () => {
     for (const option of document.querySelectorAll(
@@ -54,6 +55,51 @@ export function createContentEditor(api) {
   document.querySelector("#page-wrap").append(layer);
   const $ = (s) => document.querySelector(s),
     panel = () => $("#properties");
+  document.addEventListener("pointerdown", (event) => {
+    if (
+      event.button !== 0 ||
+      api.tool() !== "content" ||
+      inlineDismissed ||
+      regionMode ||
+      comparison ||
+      drag ||
+      !$("#inline-content-text, #recovery-inline") ||
+      event.target.closest(
+        "#properties, .inline-formatbar, dialog, input, textarea, select, label, summary, a, [role=toolbar]",
+      ) ||
+      (event.target.closest("button") && !event.target.closest(".content-hit"))
+    )
+      return;
+    capture();
+    inlineDismissed = true;
+    // Keep hit targets mounted so this same click can select the text beneath.
+    $("#inline-content-text, #recovery-inline")?.remove();
+    $(".inline-formatbar")?.remove();
+    dismissalNotice();
+  });
+  function resumeInline() {
+    inlineDismissed = false;
+    if (pendingFocus) pendingFocus.focus = true;
+    draw();
+    ($("#inline-content-text") || $("#recovery-inline"))?.focus({
+      preventScroll: true,
+    });
+  }
+  function dismissalNotice() {
+    $("#resume-inline")?.remove();
+    if (
+      !inlineDismissed ||
+      comparison ||
+      (!recovery && current()?.type !== "text")
+    )
+      return;
+    const button = document.createElement("button");
+    button.id = "resume-inline";
+    button.className = "secondary full";
+    button.textContent = t("Resume editing on page");
+    button.onclick = resumeInline;
+    $("#object-details")?.prepend(button);
+  }
   function persistBuffer(caretOnly = false) {
     const p = api.page();
     if (
@@ -170,6 +216,7 @@ export function createContentEditor(api) {
   }
   function clear() {
     regionMode = false;
+    inlineDismissed = false;
     epoch++;
     layer.replaceChildren();
     layer.hidden = true;
@@ -182,6 +229,7 @@ export function createContentEditor(api) {
   function draw() {
     layer.replaceChildren();
     layer.hidden = api.tool() !== "content";
+    dismissalNotice();
     if (layer.hidden || !result) return;
     const p = api.page();
     if (regionMode) {
@@ -281,6 +329,7 @@ export function createContentEditor(api) {
       button.onclick = () => chooseRecovery(area);
       layer.append(button);
     }
+    if (inlineDismissed) return;
     if (recovery && !comparison) {
       recoveryInline();
       return;
@@ -296,6 +345,10 @@ export function createContentEditor(api) {
     id = api.page().contentEdits?.[id]?.groupLeader || id;
     if (dirty && id !== selected) {
       api.notify("Apply or cancel the current edit first.");
+      return;
+    }
+    if (id === selected && (dirty || inlineDismissed)) {
+      resumeInline();
       return;
     }
     const target = result.items.find((item) => item.id === id);
@@ -317,6 +370,7 @@ export function createContentEditor(api) {
       return;
     }
     recovery = null;
+    inlineDismissed = false;
     selected = id;
     if ($("#object-picker")) $("#object-picker").value = id;
     buffer = structuredClone(
@@ -561,11 +615,17 @@ export function createContentEditor(api) {
     );
   }
   function chooseRecovery(area) {
-    if (dirty) {
+    if (recovery?.id === area.id) {
+      resumeInline();
+      return;
+    }
+    if (dirty || (recovery && api.page().textDraft)) {
       api.notify("Apply or cancel the current edit first.");
       return;
     }
     selected = null;
+    inlineDismissed = false;
+    pendingFocus = null;
     recovery = { ...area };
     selectionPage = api.page().id;
     persistBuffer();
@@ -992,6 +1052,7 @@ export function createContentEditor(api) {
       p = api.page();
     if (selectionPage !== p.id) {
       selected = null;
+      inlineDismissed = false;
       selectionPage = p.id;
       dirty = false;
       comparison = false;

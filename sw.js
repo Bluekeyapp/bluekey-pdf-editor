@@ -1,6 +1,6 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = "bluekey-pdf-" + encodeURIComponent(BASE.pathname) + "-";
-const CACHE = PREFIX + "d3c7acc1a396d0ba";
+const CACHE = PREFIX + "fb1fa0550ae46401";
 const ASSETS = [
   "/",
   "/index.html",
