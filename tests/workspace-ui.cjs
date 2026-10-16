@@ -105,7 +105,8 @@ const { chromium } = require("playwright"),
       );
       await page.keyboard.press("Escape");
       if (width <= 760) {
-        await page.locator("#page-wrap").click({ position: { x: 8, y: 80 } });
+        // Use an outside target that stays clear of the wrapping mobile toolbar.
+        await page.locator("#page-hint").click();
         assert.equal(await page.locator("#inline-content-text").count(), 0);
         assert.equal(await page.locator(".inline-formatbar").count(), 0);
         await page
